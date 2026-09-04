@@ -1,0 +1,28 @@
+# Compose de DESARROLLO LOCAL — solo levanta Postgres. Backend y backoffice
+# corren nativos (mvn spring-boot:run / pnpm run dev), no en contenedor: es
+# el mismo flujo que usa market-erp para desarrollo día a día, más rápido
+# que reconstruir una imagen Docker en cada cambio. Un compose de despliegue
+# real (Caddy + TLS + backups, como el de market-backend/docker-compose.yml)
+# es trabajo de una fase posterior, cuando haya un dominio/servidor real.
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-ascenso_erp}
+      POSTGRES_USER: ${POSTGRES_USER:-ascenso}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ascenso}
+    ports:
+      # 5433, no 5432 — el 5432 del host ya lo usa el Postgres local de
+      # market-erp; ambos proyectos pueden correr al mismo tiempo así.
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ascenso} -d ${POSTGRES_DB:-ascenso_erp}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  pgdata:

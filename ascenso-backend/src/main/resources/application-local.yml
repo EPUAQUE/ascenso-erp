@@ -3,7 +3,9 @@
 # igual que en los demás perfiles.
 spring:
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/ascenso_erp}
+    # Puerto 5433, no el 5432 default de Postgres — este proyecto convive en
+    # la misma máquina con el Postgres local de market-erp (ver docker-compose.yml).
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/ascenso_erp}
     username: ${DB_USERNAME:ascenso}
     password: ${DB_PASSWORD:ascenso}
 
