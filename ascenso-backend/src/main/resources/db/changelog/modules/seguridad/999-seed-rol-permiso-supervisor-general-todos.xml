@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- Incluido al final del changelog maestro, después de que todos los módulos
+         ya sembraron su propio catálogo de permisos: otorga a SUPERVISOR_GENERAL
+         cualquier permiso que exista en ese momento, sin enumerarlos uno por uno. -->
+    <changeSet id="seguridad-999-seed-rol-permiso-supervisor-general-todos" author="ascenso-backend">
+        <sql>
+            INSERT INTO rol_permiso (rol_id, permiso_id)
+            SELECT (SELECT id FROM rol WHERE nombre = 'SUPERVISOR_GENERAL'), p.id
+            FROM permiso p
+            WHERE NOT EXISTS (
+                SELECT 1 FROM rol_permiso rp
+                WHERE rp.rol_id = (SELECT id FROM rol WHERE nombre = 'SUPERVISOR_GENERAL')
+                  AND rp.permiso_id = p.id
+            );
+        </sql>
+    </changeSet>
+</databaseChangeLog>

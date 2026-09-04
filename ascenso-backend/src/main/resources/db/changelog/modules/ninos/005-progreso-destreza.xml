@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="ninos-005-progreso-destreza" author="ascenso-backend">
+        <createTable tableName="progreso_destreza">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="nino_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="destreza_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="anio_programa_objetivo_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fecha_completado" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="registrado_por" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="progreso_destreza" baseColumnNames="nino_id"
+                referencedTableName="nino" referencedColumnNames="id"
+                constraintName="fk_progreso_destreza_nino" onDelete="CASCADE"/>
+        <addForeignKeyConstraint
+                baseTableName="progreso_destreza" baseColumnNames="destreza_id"
+                referencedTableName="destreza" referencedColumnNames="id"
+                constraintName="fk_progreso_destreza_destreza" onDelete="RESTRICT"/>
+        <addForeignKeyConstraint
+                baseTableName="progreso_destreza" baseColumnNames="anio_programa_objetivo_id"
+                referencedTableName="anio_programa" referencedColumnNames="id"
+                constraintName="fk_progreso_destreza_anio_programa" onDelete="RESTRICT"/>
+        <addForeignKeyConstraint
+                baseTableName="progreso_destreza" baseColumnNames="registrado_por"
+                referencedTableName="usuario" referencedColumnNames="id"
+                constraintName="fk_progreso_destreza_registrado_por" onDelete="RESTRICT"/>
+        <addUniqueConstraint
+                tableName="progreso_destreza" columnNames="nino_id, destreza_id"
+                constraintName="ux_progreso_destreza_nino_destreza"/>
+    </changeSet>
+</databaseChangeLog>

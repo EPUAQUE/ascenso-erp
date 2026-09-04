@@ -1,0 +1,121 @@
+# Solo valores comunes y NO sensibles a todo perfil. Cada perfil
+# (application-{local,test,prod}.yml) aporta lo que difiere por entorno —
+# credenciales de base de datos, llaves JWT, orígenes CORS, semilla de admin.
+# Sin perfil activo, este archivo por sí solo no arranca la app (spring.datasource.url
+# no tiene default aquí a propósito) — ver ProdSafetyGuard.
+spring:
+  application:
+    name: ascenso-backend
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+
+  datasource:
+    hikari:
+      pool-name: ascenso-backend-hikari
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:10}
+      minimum-idle: ${DB_POOL_MIN_IDLE:2}
+      connection-timeout: ${DB_POOL_CONNECTION_TIMEOUT_MS:30000}
+      idle-timeout: ${DB_POOL_IDLE_TIMEOUT_MS:600000}
+      max-lifetime: ${DB_POOL_MAX_LIFETIME_MS:1800000}
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+
+  # host queda "" por default (no ausente) — MailSenderAutoConfiguration igual crea
+  # el bean JavaMailSender con ese host vacío, que solo falla al intentar enviar
+  # (capturado por AlertaEmailService/PasswordResetMailSenderImpl), nunca al
+  # arrancar la app.
+  mail:
+    host: ${ALERT_SMTP_HOST:}
+    port: ${ALERT_SMTP_PORT:587}
+    username: ${ALERT_SMTP_USER:}
+    password: ${ALERT_SMTP_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # /health sin autenticar (ver SecurityConfig); /prometheus sí exige JWT como
+        # cualquier otro endpoint no listado ahí.
+        include: health,prometheus
+  endpoint:
+    health:
+      show-details: never
+  health:
+    # Sin esto, spring-boot-starter-mail activa un health indicator que intenta una
+    # conexión SMTP real en cada chequeo — /actuator/health pasaría a reportar DOWN
+    # por un SMTP sin configurar/no alcanzable, algo que no tiene nada que ver con
+    # si el backend en sí está sano.
+    mail:
+      enabled: false
+
+app:
+  security:
+    refresh-token:
+      ttl: ${REFRESH_TOKEN_TTL:P30D}
+      cleanup-interval: ${REFRESH_TOKEN_CLEANUP_INTERVAL:PT1H}
+    password-reset:
+      # Flujo público "olvidé mi contraseña" (AuthController.forgotPassword/resetPassword).
+      ttl: ${PASSWORD_RESET_TOKEN_TTL:PT30M}
+    argon2:
+      salt-length: 16
+      hash-length: 32
+      parallelism: 1
+      memory-kib: 19456
+      iterations: 2
+    password-policy:
+      min-length: 12
+      max-length: 64
+    rate-limit:
+      login:
+        capacity: 5
+        refill-tokens: 5
+        refill-period: PT1M
+        cleanup-interval: ${RATE_LIMIT_LOGIN_CLEANUP_INTERVAL:PT10M}
+    network:
+      trusted-proxies: ${TRUSTED_PROXIES:}
+    cors:
+      allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+      allowed-headers: Authorization,Content-Type,X-Correlation-Id
+  seed:
+    # Sin perfil activo (o en prod) NUNCA se siembra un admin por accidente — solo
+    # application-local.yml / application-test.yml lo activan explícitamente.
+    enabled: ${SEED_ENABLED:false}
+  alertas:
+    email:
+      from: ${ALERT_EMAIL_FROM:}
+      to: ${ALERT_EMAIL_TO:}
+  frontend:
+    # URL del formulario de "restablecer contraseña" del backoffice/app — usada por
+    # PasswordResetMailSenderImpl para armar el enlace del correo.
+    password-reset-url: ${FRONTEND_PASSWORD_RESET_URL:}
+
+logging:
+  level:
+    com.ais.ascensobackend: INFO
+  pattern:
+    level: "%5p [correlationId=%X{correlationId:-}]"

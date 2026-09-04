@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="ninos-006-progreso-liderazgo" author="ascenso-backend">
+        <createTable tableName="progreso_liderazgo">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="nino_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="liderazgo_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="anio_programa_objetivo_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fecha_completado" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="registrado_por" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="progreso_liderazgo" baseColumnNames="nino_id"
+                referencedTableName="nino" referencedColumnNames="id"
+                constraintName="fk_progreso_liderazgo_nino" onDelete="CASCADE"/>
+        <addForeignKeyConstraint
+                baseTableName="progreso_liderazgo" baseColumnNames="liderazgo_id"
+                referencedTableName="liderazgo" referencedColumnNames="id"
+                constraintName="fk_progreso_liderazgo_liderazgo" onDelete="RESTRICT"/>
+        <addForeignKeyConstraint
+                baseTableName="progreso_liderazgo" baseColumnNames="anio_programa_objetivo_id"
+                referencedTableName="anio_programa" referencedColumnNames="id"
+                constraintName="fk_progreso_liderazgo_anio_programa" onDelete="RESTRICT"/>
+        <addForeignKeyConstraint
+                baseTableName="progreso_liderazgo" baseColumnNames="registrado_por"
+                referencedTableName="usuario" referencedColumnNames="id"
+                constraintName="fk_progreso_liderazgo_registrado_por" onDelete="RESTRICT"/>
+        <addUniqueConstraint
+                tableName="progreso_liderazgo" columnNames="nino_id, liderazgo_id"
+                constraintName="ux_progreso_liderazgo_nino_liderazgo"/>
+    </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="ninos-003-asistencia" author="ascenso-backend">
+        <createTable tableName="asistencia">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="nino_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="trimestre_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fecha" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="presente" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="registrado_por" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="asistencia" baseColumnNames="nino_id"
+                referencedTableName="nino" referencedColumnNames="id"
+                constraintName="fk_asistencia_nino" onDelete="CASCADE"/>
+        <addForeignKeyConstraint
+                baseTableName="asistencia" baseColumnNames="trimestre_id"
+                referencedTableName="trimestre" referencedColumnNames="id"
+                constraintName="fk_asistencia_trimestre" onDelete="RESTRICT"/>
+        <addForeignKeyConstraint
+                baseTableName="asistencia" baseColumnNames="registrado_por"
+                referencedTableName="usuario" referencedColumnNames="id"
+                constraintName="fk_asistencia_registrado_por" onDelete="RESTRICT"/>
+        <addUniqueConstraint
+                tableName="asistencia" columnNames="nino_id, fecha" constraintName="ux_asistencia_nino_fecha"/>
+    </changeSet>
+</databaseChangeLog>

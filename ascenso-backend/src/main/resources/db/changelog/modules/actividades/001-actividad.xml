@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="actividades-001-actividad" author="ascenso-backend">
+        <createTable tableName="actividad">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="destacamento_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="titulo" type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="descripcion" type="TEXT"/>
+            <column name="fecha_inicio" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fecha_fin" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="creado_por" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="actividad" baseColumnNames="destacamento_id"
+                referencedTableName="destacamento" referencedColumnNames="id"
+                constraintName="fk_actividad_destacamento" onDelete="CASCADE"/>
+        <addForeignKeyConstraint
+                baseTableName="actividad" baseColumnNames="creado_por"
+                referencedTableName="usuario" referencedColumnNames="id"
+                constraintName="fk_actividad_creado_por" onDelete="RESTRICT"/>
+        <createIndex indexName="ix_actividad_destacamento" tableName="actividad">
+            <column name="destacamento_id"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

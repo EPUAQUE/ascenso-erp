@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="ninos-008-medalla-otorgada" author="ascenso-backend">
+        <createTable tableName="medalla_otorgada">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="nino_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="anio_programa_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fecha_otorgada" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="medalla_otorgada" baseColumnNames="nino_id"
+                referencedTableName="nino" referencedColumnNames="id"
+                constraintName="fk_medalla_otorgada_nino" onDelete="CASCADE"/>
+        <addForeignKeyConstraint
+                baseTableName="medalla_otorgada" baseColumnNames="anio_programa_id"
+                referencedTableName="anio_programa" referencedColumnNames="id"
+                constraintName="fk_medalla_otorgada_anio_programa" onDelete="RESTRICT"/>
+        <addUniqueConstraint
+                tableName="medalla_otorgada" columnNames="nino_id, anio_programa_id"
+                constraintName="ux_medalla_otorgada_nino_anio"/>
+    </changeSet>
+</databaseChangeLog>

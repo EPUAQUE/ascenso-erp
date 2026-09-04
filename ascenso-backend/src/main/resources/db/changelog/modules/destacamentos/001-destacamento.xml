@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="destacamentos-001-destacamento" author="ascenso-backend">
+        <createTable tableName="destacamento">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="numero_unico" type="VARCHAR(20)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="ux_destacamento_numero_unico"/>
+            </column>
+            <column name="nombre" type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="iglesia_nombre" type="VARCHAR(150)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="direccion" type="VARCHAR(255)"/>
+            <column name="modo_corte_anio" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="activo" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creado_en" type="TIMESTAMP WITH TIME ZONE" defaultValueComputed="now()">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <!-- Liquibase core no tiene un changeType addCheckConstraint (confirmado al
+             validar contra dbchangelog-4.20.xsd) — CHECK se agrega con SQL nativo. -->
+        <sql>ALTER TABLE destacamento ADD CONSTRAINT ck_destacamento_modo_corte_anio
+            CHECK (modo_corte_anio IN ('CALENDARIO','ANIVERSARIO_INGRESO'));</sql>
+    </changeSet>
+
+    <!--
+        Ahora que el módulo Destacamentos existe y es dueño de la tabla
+        `destacamento`, se agrega la FK que `seguridad` dejó pendiente en
+        003-usuario-destacamento.xml — mismo patrón "FK diferida" que
+        market-backend usa entre tiendas/001-tienda.xml y
+        seguridad/003-usuario-tienda.xml.
+    -->
+    <changeSet id="destacamentos-001-fk-usuario-destacamento" author="ascenso-backend">
+        <addForeignKeyConstraint
+                baseTableName="usuario_destacamento" baseColumnNames="destacamento_id"
+                referencedTableName="destacamento" referencedColumnNames="id"
+                constraintName="fk_usuario_destacamento_destacamento" onDelete="RESTRICT"/>
+    </changeSet>
+
+    <!-- Gestión de destacamentos: solo-supervisor (ver ARCHITECTURE.md / prompt de fase 1). -->
+    <changeSet id="destacamentos-001-seed-permisos" author="ascenso-backend">
+        <insert tableName="permiso">
+            <column name="codigo" value="DESTACAMENTOS_VER"/>
+            <column name="descripcion" value="Listar destacamentos"/>
+        </insert>
+        <insert tableName="permiso">
+            <column name="codigo" value="DESTACAMENTOS_CREAR"/>
+            <column name="descripcion" value="Crear destacamentos"/>
+        </insert>
+        <insert tableName="permiso">
+            <column name="codigo" value="DESTACAMENTOS_EDITAR"/>
+            <column name="descripcion" value="Editar y activar/desactivar destacamentos"/>
+        </insert>
+        <insert tableName="rol_permiso">
+            <column name="rol_id" valueComputed="(select id from rol where nombre = 'SUPERVISOR_GENERAL')"/>
+            <column name="permiso_id" valueComputed="(select id from permiso where codigo = 'DESTACAMENTOS_VER')"/>
+        </insert>
+        <insert tableName="rol_permiso">
+            <column name="rol_id" valueComputed="(select id from rol where nombre = 'SUPERVISOR_GENERAL')"/>
+            <column name="permiso_id" valueComputed="(select id from permiso where codigo = 'DESTACAMENTOS_CREAR')"/>
+        </insert>
+        <insert tableName="rol_permiso">
+            <column name="rol_id" valueComputed="(select id from rol where nombre = 'SUPERVISOR_GENERAL')"/>
+            <column name="permiso_id" valueComputed="(select id from permiso where codigo = 'DESTACAMENTOS_EDITAR')"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

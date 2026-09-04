@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- Los 4 roles de negocio de Exploradores del Rey. SUPERVISOR_GENERAL es el
+         único de alcance global — ver seguridad-desarrolladores.md §1. -->
+    <changeSet id="seguridad-006-seed-roles" author="ascenso-backend">
+        <insert tableName="rol">
+            <column name="nombre" value="SUPERVISOR_GENERAL"/>
+            <column name="alcance_global" valueBoolean="true"/>
+        </insert>
+        <insert tableName="rol">
+            <column name="nombre" value="LIDER_PRINCIPAL"/>
+            <column name="alcance_global" valueBoolean="false"/>
+        </insert>
+        <insert tableName="rol">
+            <column name="nombre" value="LIDER_GRUPO"/>
+            <column name="alcance_global" valueBoolean="false"/>
+        </insert>
+        <insert tableName="rol">
+            <column name="nombre" value="PADRE"/>
+            <column name="alcance_global" valueBoolean="false"/>
+        </insert>
+    </changeSet>
+
+    <!-- Permisos propios del módulo Seguridad (gestión de usuarios). -->
+    <changeSet id="seguridad-006-seed-permisos" author="ascenso-backend">
+        <insert tableName="permiso">
+            <column name="codigo" value="USUARIOS_VER"/>
+            <column name="descripcion" value="Listar usuarios"/>
+        </insert>
+        <insert tableName="permiso">
+            <column name="codigo" value="USUARIOS_CREAR"/>
+            <column name="descripcion" value="Crear usuarios"/>
+        </insert>
+        <insert tableName="permiso">
+            <column name="codigo" value="USUARIOS_ASIGNAR_DESTACAMENTO"/>
+            <column name="descripcion" value="Asignar destacamento y rol a un usuario"/>
+        </insert>
+        <insert tableName="permiso">
+            <column name="codigo" value="USUARIOS_RESTABLECER_PASSWORD"/>
+            <column name="descripcion" value="Restablecer la contraseña de otro usuario con una contraseña temporal"/>
+        </insert>
+        <insert tableName="permiso">
+            <column name="codigo" value="USUARIOS_REVOCAR_SESIONES"/>
+            <column name="descripcion" value="Revocar todas las sesiones activas de otro usuario"/>
+        </insert>
+        <insert tableName="permiso">
+            <column name="codigo" value="USUARIOS_CAMBIAR_ESTADO"/>
+            <column name="descripcion" value="Desactivar, bloquear o reactivar otro usuario"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

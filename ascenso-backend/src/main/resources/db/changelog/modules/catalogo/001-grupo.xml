@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="catalogo-001-grupo" author="ascenso-backend">
+        <createTable tableName="grupo">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="nombre" type="VARCHAR(50)">
+                <constraints nullable="false" unique="true" uniqueConstraintName="ux_grupo_nombre"/>
+            </column>
+            <column name="edad_min" type="SMALLINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="edad_max" type="SMALLINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="orden" type="SMALLINT">
+                <constraints nullable="false" unique="true" uniqueConstraintName="ux_grupo_orden"/>
+            </column>
+            <column name="descripcion" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+    <!-- Los 5 grupos etarios del programa — catálogo global fijo, mismo para todos
+         los destacamentos (ver ARCHITECTURE.md, módulo catalogo). -->
+    <changeSet id="catalogo-001-seed-grupos" author="ascenso-backend">
+        <insert tableName="grupo">
+            <column name="nombre" value="Pre-Navegantes"/>
+            <column name="edad_min" valueNumeric="4"/>
+            <column name="edad_max" valueNumeric="4"/>
+            <column name="orden" valueNumeric="1"/>
+        </insert>
+        <insert tableName="grupo">
+            <column name="nombre" value="Navegantes"/>
+            <column name="edad_min" valueNumeric="5"/>
+            <column name="edad_max" valueNumeric="7"/>
+            <column name="orden" valueNumeric="2"/>
+        </insert>
+        <insert tableName="grupo">
+            <column name="nombre" value="Pioneros"/>
+            <column name="edad_min" valueNumeric="8"/>
+            <column name="edad_max" valueNumeric="10"/>
+            <column name="orden" valueNumeric="3"/>
+        </insert>
+        <insert tableName="grupo">
+            <column name="nombre" value="Seguidores"/>
+            <column name="edad_min" valueNumeric="11"/>
+            <column name="edad_max" valueNumeric="13"/>
+            <column name="orden" valueNumeric="4"/>
+        </insert>
+        <insert tableName="grupo">
+            <column name="nombre" value="Exploradores"/>
+            <column name="edad_min" valueNumeric="14"/>
+            <column name="edad_max" valueNumeric="17"/>
+            <column name="orden" valueNumeric="5"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

@@ -1,0 +1,224 @@
+@import './tokens.css';
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background-color: rgb(var(--mk-bg));
+  color: rgb(var(--mk-text));
+  font-feature-settings: 'tnum' 1;
+}
+
+@layer components {
+  /* Igual que la propuesta de diseño: el sidebar es un degradado
+     --mk-brand → --mk-brand-deep, no un color plano — y ambos tokens
+     cambian de tono entre claro/oscuro (ver tokens.css). */
+  .mk-sidebar {
+    background-image: linear-gradient(185deg, rgb(var(--mk-brand)), rgb(var(--mk-brand-deep)));
+  }
+
+  .mk-bg {
+    background-color: rgb(var(--mk-bg));
+  }
+
+  /* Botones */
+  .mk-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-semibold
+      transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .mk-btn:focus-visible {
+    outline: 2px solid rgb(var(--mk-primary));
+    outline-offset: 2px;
+  }
+  .mk-btn-primary {
+    background-color: rgb(var(--mk-primary));
+    color: rgb(var(--mk-primary-ink));
+  }
+  .mk-btn-primary:hover:not(:disabled) {
+    background-color: rgb(var(--mk-primary) / 0.88);
+  }
+  .mk-btn-outline {
+    @apply border bg-transparent;
+    border-color: rgb(var(--mk-primary));
+    color: rgb(var(--mk-primary));
+  }
+  .mk-btn-outline:hover:not(:disabled) {
+    background-color: rgb(var(--mk-primary) / 0.08);
+  }
+  .mk-btn-ghost {
+    @apply bg-transparent;
+    color: rgb(var(--mk-text-muted));
+  }
+  .mk-btn-ghost:hover:not(:disabled) {
+    background-color: rgb(var(--mk-surface-2));
+    color: rgb(var(--mk-text));
+  }
+  .mk-btn-danger {
+    background-color: rgb(var(--mk-danger));
+    color: white;
+  }
+  .mk-btn-danger:hover:not(:disabled) {
+    background-color: rgb(var(--mk-danger) / 0.88);
+  }
+
+  /* Tarjetas */
+  .mk-card {
+    background-color: rgb(var(--mk-surface));
+    @apply rounded-mk border shadow-mk;
+    border-color: rgb(var(--mk-border));
+  }
+
+  /* Inputs */
+  .mk-input {
+    background-color: rgb(var(--mk-surface));
+    color: rgb(var(--mk-text));
+  }
+  .mk-input::placeholder {
+    color: rgb(var(--mk-text-muted));
+  }
+  .mk-input:focus {
+    outline: 2px solid rgb(var(--mk-primary) / 0.45);
+    outline-offset: 1px;
+    border-color: rgb(var(--mk-primary));
+  }
+
+  .mk-num {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .mk-scroll-x {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Badges de estado — etiquetas suaves, sin colores saturados */
+  .mk-badge {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap;
+  }
+  .mk-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background-color: currentColor;
+  }
+  .mk-row-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+  .mk-row-btn {
+    display: inline-flex;
+    height: 1.625rem;
+    width: 1.625rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.4375rem;
+    border-width: 1px;
+    border-color: rgb(var(--mk-border));
+    background-color: rgb(var(--mk-surface));
+    color: rgb(var(--mk-info));
+  }
+  .mk-row-btn svg {
+    height: 0.8125rem;
+    width: 0.8125rem;
+  }
+  .mk-row-btn-danger {
+    color: rgb(var(--mk-danger));
+  }
+  .mk-row-btn-success {
+    color: rgb(var(--mk-success));
+  }
+  .mk-row-btn-neutral {
+    color: rgb(var(--mk-text-muted));
+  }
+
+  /* Paginación numerada — igual que la propuesta de diseño (botones de
+     página en vez de solo Anterior/Siguiente). */
+  .mk-pager-btn {
+    display: inline-flex;
+    height: 1.75rem;
+    min-width: 1.75rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    padding: 0 0.375rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: rgb(var(--mk-text-muted));
+  }
+  .mk-pager-btn:hover:not(:disabled):not(.mk-pager-btn-activo) {
+    background-color: rgb(var(--mk-surface-2));
+    color: rgb(var(--mk-text));
+  }
+  .mk-pager-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  .mk-pager-btn-activo {
+    background-color: rgb(var(--mk-primary));
+    color: white;
+  }
+}
+
+/* Colores por variante de .mk-badge — fuera de @layer components a
+   propósito: por alguna razón, cuando estas reglas vivían dentro de
+   @layer components junto al override de modo oscuro de abajo (mismo
+   selector, fuera de cualquier @layer), Tailwind/PostCSS descartaba
+   silenciosamente el "color" de la regla clara del build (`pnpm build`
+   y `pnpm dev` por igual) — solo sobrevivía el "background-color" del
+   override oscuro. Sacarlas de @layer components lo resuelve. */
+.mk-badge-success {
+  background-color: rgb(var(--mk-success) / 0.12);
+  color: rgb(var(--mk-success));
+}
+.mk-badge-pending {
+  background-color: rgb(var(--mk-pending) / 0.16);
+  color: rgb(180 130 20);
+}
+.mk-badge-overdue {
+  background-color: rgb(var(--mk-overdue) / 0.14);
+  color: rgb(var(--mk-overdue));
+}
+.mk-badge-danger {
+  background-color: rgb(var(--mk-danger) / 0.12);
+  color: rgb(var(--mk-danger));
+}
+.mk-badge-info {
+  background-color: rgb(var(--mk-info) / 0.12);
+  color: rgb(var(--mk-info));
+}
+.mk-badge-neutral {
+  background-color: rgb(var(--mk-text-muted) / 0.12);
+  color: rgb(var(--mk-text-muted));
+}
+
+/* En oscuro, el mismo 0.12/0.14 de opacidad queda casi invisible contra un
+   fondo ya oscuro — se sube el piso de opacidad solo para las variantes de
+   badge, sin tocar el resto de componentes que ya heredan bien de los
+   tokens. */
+:root[data-theme='dark'] .mk-badge-success {
+  background-color: rgb(var(--mk-success) / 0.18);
+}
+:root[data-theme='dark'] .mk-badge-pending {
+  background-color: rgb(var(--mk-pending) / 0.2);
+  color: rgb(var(--mk-pending));
+}
+:root[data-theme='dark'] .mk-badge-overdue {
+  background-color: rgb(var(--mk-overdue) / 0.2);
+}
+:root[data-theme='dark'] .mk-badge-danger {
+  background-color: rgb(var(--mk-danger) / 0.18);
+}
+:root[data-theme='dark'] .mk-badge-info {
+  background-color: rgb(var(--mk-info) / 0.2);
+}
+:root[data-theme='dark'] .mk-badge-neutral {
+  background-color: rgb(var(--mk-text-muted) / 0.18);
+}

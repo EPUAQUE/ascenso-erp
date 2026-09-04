@@ -1,0 +1,40 @@
+# Monorepo: ascenso-backend (Java/Maven) + ascenso-backoffice (Vue/Vite) +
+# ascenso-flutter (Flutter, app de líderes). Reglas comunes acá; cada proyecto
+# puede tener su propio .gitignore anidado además de este (ej.
+# ascenso-flutter/.gitignore, generado por el propio `flutter create`).
+
+# --- Secretos: nunca al repositorio ---
+.env
+.env.local
+# Excepción explícita: .env.example y .env.development de ascenso-backoffice
+# no tienen secretos, se mantienen fuera de esta regla.
+ascenso-backend/local-dev/certs/*.pem
+ascenso-backend/src/test/resources/certs/*.pem
+
+# --- IDE / editor / sesión local ---
+.idea/
+.vscode/
+.claude/
+*.iml
+
+# --- SO ---
+.DS_Store
+Thumbs.db
+
+# --- Logs y crashes sueltos (sesiones de desarrollo, no artefactos del proyecto) ---
+*.log
+*.stackdump
+
+# --- ascenso-backend (Maven) ---
+ascenso-backend/target/
+
+# --- ascenso-backoffice (pnpm/Vite) ---
+ascenso-backoffice/node_modules/
+ascenso-backoffice/dist/
+ascenso-backoffice/tsconfig.tsbuildinfo
+
+# --- ascenso-flutter ---
+# Reglas específicas de Flutter/Dart ya cubiertas por ascenso-flutter/.gitignore
+# (generado por `flutter create`, no se toca) — acá solo lo que ese archivo no
+# cubre.
+ascenso-flutter/build/

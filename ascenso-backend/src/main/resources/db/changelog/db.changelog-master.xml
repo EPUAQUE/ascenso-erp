@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <include file="db/changelog/modules/seguridad/001-usuario.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/seguridad/002-rol-permiso.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/seguridad/003-usuario-destacamento.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/seguridad/004-refresh-token.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/seguridad/005-password-reset-token.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/seguridad/006-seed-roles-permisos-usuarios.xml" relativeToChangelogFile="false"/>
+
+    <include file="db/changelog/modules/destacamentos/001-destacamento.xml" relativeToChangelogFile="false"/>
+
+    <include file="db/changelog/modules/catalogo/001-grupo.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/catalogo/002-anio-programa.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/catalogo/003-libro-biblico.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/catalogo/004-destreza.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/catalogo/005-liderazgo.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/catalogo/006-paso-requerido.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/catalogo/007-regla-asistencia.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/catalogo/008-seed-permisos.xml" relativeToChangelogFile="false"/>
+
+    <include file="db/changelog/modules/ninos/001-nino.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/ninos/002-trimestre.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/ninos/003-asistencia.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/ninos/004-progreso-libro.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/ninos/005-progreso-destreza.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/ninos/006-progreso-liderazgo.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/ninos/007-progreso-requisito.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/ninos/008-medalla-otorgada.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/ninos/009-logro-mayor.xml" relativeToChangelogFile="false"/>
+
+    <include file="db/changelog/modules/actividades/001-actividad.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/actividades/002-anuncio.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/actividades/003-nino-padre.xml" relativeToChangelogFile="false"/>
+
+    <!-- Va al final: otorga a SUPERVISOR_GENERAL todo permiso sembrado por cualquier
+         módulo de arriba (incluido este propio archivo) — alcance_global=true solo
+         exime a este rol de la validación de acceso por destacamento
+         (PermisosEfectivos.puedeAccederADestacamento), nunca de la validación de
+         permiso en sí (PermissionInterceptor.preHandle siempre exige
+         permisos.tienePermiso(...) sin importar alcanceGlobal) — mismo criterio que
+         el rol ADMIN de market-backend, aquí implementado como un único changeset
+         dinámico en vez de un insert por permiso repetido en cada módulo. -->
+    <include file="db/changelog/modules/seguridad/999-seed-rol-permiso-supervisor-general-todos.xml" relativeToChangelogFile="false"/>
+</databaseChangeLog>

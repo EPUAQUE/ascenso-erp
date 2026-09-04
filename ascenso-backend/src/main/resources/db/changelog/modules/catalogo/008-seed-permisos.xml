@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- CATALOGO_VER (lectura) para LIDER_PRINCIPAL/LIDER_GRUPO — necesitan consultar
+         el catálogo (grupos, libros, destrezas, etc.) para registrar progreso de los
+         niños, pero no editarlo. CATALOGO_EDITAR queda solo para SUPERVISOR_GENERAL
+         (otorgado por el changeset 999 del módulo seguridad). -->
+    <changeSet id="catalogo-008-seed-permisos" author="ascenso-backend">
+        <insert tableName="permiso">
+            <column name="codigo" value="CATALOGO_VER"/>
+            <column name="descripcion" value="Consultar el catálogo del programa (grupos, libros, destrezas, liderazgo, pasos, reglas)"/>
+        </insert>
+        <insert tableName="permiso">
+            <column name="codigo" value="CATALOGO_EDITAR"/>
+            <column name="descripcion" value="Editar el catálogo del programa"/>
+        </insert>
+        <insert tableName="rol_permiso">
+            <column name="rol_id" valueComputed="(select id from rol where nombre = 'LIDER_PRINCIPAL')"/>
+            <column name="permiso_id" valueComputed="(select id from permiso where codigo = 'CATALOGO_VER')"/>
+        </insert>
+        <insert tableName="rol_permiso">
+            <column name="rol_id" valueComputed="(select id from rol where nombre = 'LIDER_GRUPO')"/>
+            <column name="permiso_id" valueComputed="(select id from permiso where codigo = 'CATALOGO_VER')"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

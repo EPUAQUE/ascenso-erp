@@ -1,0 +1,64 @@
+:root {
+  /* Marca — verde petróleo: sidebar, encabezados de marca. El sidebar usa un
+     degradado (--mk-brand → --mk-brand-deep), igual que en la propuesta de
+     diseño original — no es un color plano. */
+  --mk-brand: 15 76 92; /* #0F4C5C */
+  --mk-brand-deep: 10 55 66; /* #0A3742 */
+  --mk-brand-ink: 255 255 255;
+
+  /* Acción principal — verde esmeralda: botones, estados activos */
+  --mk-primary: 46 139 87; /* #2E8B57 */
+  --mk-primary-ink: 255 255 255;
+
+  /* Acento — ámbar: alertas, indicadores, elementos destacados */
+  --mk-accent: 217 164 65; /* #D9A441 */
+  --mk-accent-ink: 46 32 8;
+
+  /* Superficies */
+  --mk-bg: 248 250 252; /* #F8FAFC */
+  --mk-surface: 255 255 255; /* #FFFFFF */
+  --mk-surface-2: 241 245 249; /* superficie secundaria (cabeceras de tabla, hover) */
+
+  /* Texto */
+  --mk-text: 31 41 55; /* #1F2937 */
+  --mk-text-muted: 107 114 128; /* #6B7280 */
+
+  --mk-border: 226 232 240;
+
+  /* Estados semánticos */
+  --mk-success: 59 170 104; /* #3BAA68 — Activo */
+  --mk-pending: 244 185 66; /* #F4B942 — Pendiente */
+  --mk-overdue: 224 138 63; /* Vencido (naranja) */
+  --mk-danger: 220 107 107; /* #DC6B6B — Error */
+  --mk-info: 100 116 139; /* Informativo (azul grisáceo) */
+}
+
+/*
+ * Modo oscuro: la propuesta de diseño (panel "Paleta — clara y oscura")
+ * redefine Sidebar/Primario/Acento a tonos propios del tema oscuro, no solo
+ * las superficies — se sigue ese mismo criterio acá: primario/acento suben
+ * de luminosidad para seguir leyéndose bien sobre fondos oscuros, en vez de
+ * quedarse con el valor exacto del tema claro. Activado por ThemeStore vía
+ * [data-theme="dark"] en <html> — nunca sigue el tema del sistema operativo
+ * (decisión del cliente: siempre abre claro).
+ */
+:root[data-theme='dark'] {
+  --mk-brand: 10 50 61; /* #0A323D */
+  --mk-brand-deep: 5 27 33; /* #051B21 */
+  --mk-primary: 52 160 106; /* #34A06A */
+  --mk-accent: 230 180 88; /* #E6B458 */
+  --mk-bg: 16 23 26; /* #10171A */
+  --mk-surface: 23 31 34; /* #171F22 */
+  --mk-surface-2: 35 43 46; /* #232B2E */
+
+  --mk-text: 231 237 236; /* #E7EDEC */
+  --mk-text-muted: 147 163 162; /* #93A3A2 */
+
+  --mk-border: 42 52 55; /* #2A3437 */
+
+  --mk-success: 85 199 138; /* #55C78A */
+  --mk-pending: 232 185 105; /* #E8B969 */
+  --mk-overdue: 232 158 105;
+  --mk-danger: 242 137 125; /* #F2897D */
+  --mk-info: 148 163 184;
+}

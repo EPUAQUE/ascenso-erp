@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="catalogo-002-anio-programa" author="ascenso-backend">
+        <createTable tableName="anio_programa">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="grupo_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="numero" type="SMALLINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="medalla" type="VARCHAR(10)"/>
+            <column name="minimo_libros" type="SMALLINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="minimo_destrezas" type="SMALLINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="minimo_liderazgo" type="SMALLINT" defaultValueNumeric="0">
+                <constraints nullable="false"/>
+            </column>
+            <column name="es_anio_gracia" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="anio_programa" baseColumnNames="grupo_id"
+                referencedTableName="grupo" referencedColumnNames="id"
+                constraintName="fk_anio_programa_grupo" onDelete="RESTRICT"/>
+        <addUniqueConstraint
+                tableName="anio_programa" columnNames="grupo_id, numero" constraintName="ux_anio_programa_grupo_numero"/>
+        <sql>ALTER TABLE anio_programa ADD CONSTRAINT ck_anio_programa_medalla
+            CHECK (medalla IS NULL OR medalla IN ('BRONCE','PLATA','ORO'));</sql>
+    </changeSet>
+
+    <!-- Pre-Navegantes: un solo año, sin medalla (juegos/actividades introductorias). -->
+    <changeSet id="catalogo-002-seed-anio-pre-navegantes" author="ascenso-backend">
+        <insert tableName="anio_programa">
+            <column name="grupo_id" valueComputed="(select id from grupo where nombre = 'Pre-Navegantes')"/>
+            <column name="numero" valueNumeric="1"/>
+            <column name="minimo_libros" valueNumeric="0"/>
+            <column name="minimo_destrezas" valueNumeric="0"/>
+            <column name="minimo_liderazgo" valueNumeric="0"/>
+            <column name="es_anio_gracia" valueBoolean="false"/>
+        </insert>
+    </changeSet>
+
+    <!-- Navegantes/Pioneros/Seguidores: 3 años cada uno (BRONCE/PLATA/ORO), mismos
+         mínimos de referencia (editable después por el supervisor vía el admin). -->
+    <changeSet id="catalogo-002-seed-anios-navegantes" author="ascenso-backend">
+        <insert tableName="anio_programa">
+            <column name="grupo_id" valueComputed="(select id from grupo where nombre = 'Navegantes')"/>
+            <column name="numero" valueNumeric="1"/>
+            <column name="medalla" value="BRONCE"/>
+            <column name="minimo_libros" valueNumeric="2"/>
+            <column name="minimo_destrezas" valueNumeric="1"/>
+            <column name="minimo_liderazgo" valueNumeric="1"/>
+            <column name="es_anio_gracia" valueBoolean="false"/>
+        </insert>
+        <insert tableName="anio_programa">
+            <column name="grupo_id" valueComputed="(select id from grupo where nombre = 'Navegantes')"/>
+            <column name="numero" valueNumeric="2"/>
+            <column name="medalla" value="PLATA"/>
+            <column name="minimo_libros" valueNumeric="2"/>
+            <column name="minimo_destrezas" valueNumeric="1"/>
+            <column name="minimo_liderazgo" valueNumeric="1"/>
+            <column name="es_anio_gracia" valueBoolean="false"/>
+        </insert>
+        <insert tableName="anio_programa">
+            <column name="grupo_id" valueComputed="(select id from grupo where nombre = 'Navegantes')"/>
+            <column name="numero" valueNumeric="3"/>
+            <column name="medalla" value="ORO"/>
+            <column name="minimo_libros" valueNumeric="2"/>
+            <column name="minimo_destrezas" valueNumeric="1"/>
+            <column name="minimo_liderazgo" valueNumeric="1"/>
+            <column name="es_anio_gracia" valueBoolean="false"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="catalogo-002-seed-anios-pioneros" author="ascenso-backend">
+        <insert tableName="anio_programa">
+            <column name="grupo_id" valueComputed="(select id from grupo where nombre = 'Pioneros')"/>
+            <column name="numero" valueNumeric="1"/>
+            <column name="medalla" value="BRONCE"/>
+            <column name="minimo_libros" valueNumeric="2"/>
+            <column name="minimo_destrezas" valueNumeric="1"/>
+            <column name="minimo_liderazgo" valueNumeric="1"/>
+            <column name="es_anio_gracia" valueBoolean="false"/>
+        </insert>
+        <insert tableName="anio_programa">
+            <column name="grupo_id" valueComputed="(select id from grupo where nombre = 'Pioneros')"/>
+            <column name="numero" valueNumeric="2"/>
+            <column name="medalla" value="PLATA"/>
+            <column name="minimo_libros" valueNumeric="2"/>
+            <column name="minimo_destrezas" valueNumeric="1"/>
+            <column name="minimo_liderazgo" valueNumeric="1"/>
+            <column name="es_anio_gracia" valueBoolean="false"/>
+        </insert>
+        <insert tableName="anio_programa">
+            <column name="grupo_id" valueComputed="(select id from grupo where nombre = 'Pioneros')"/>
+            <column name="numero" valueNumeric="3"/>
+            <column name="medalla" value="ORO"/>
+            <column name="minimo_libros" valueNumeric="2"/>
+            <column name="minimo_destrezas" valueNumeric="1"/>
+            <column name="minimo_liderazgo" valueNumeric="1"/>
+            <column name="es_anio_gracia" valueBoolean="false"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="catalogo-002-seed-anios-seguidores" author="ascenso-backend">
+        <insert tableName="anio_programa">
+            <column name="grupo_id" valueComputed="(select id from grupo where nombre = 'Seguidores')"/>
+            <column name="numero" valueNumeric="1"/>
+            <column name="medalla" value="BRONCE"/>
+            <column name="minimo_libros" valueNumeric="2"/>
+            <column name="minimo_destrezas" valueNumeric="1"/>
+            <column name="minimo_liderazgo" valueNumeric="1"/>
+            <column name="es_anio_gracia" valueBoolean="false"/>
+        </insert>
+        <insert tableName="anio_programa">
+            <column name="grupo_id" valueComputed="(select id from grupo where nombre = 'Seguidores')"/>
+            <column name="numero" valueNumeric="2"/>
+            <column name="medalla" value="PLATA"/>
+            <column name="minimo_libros" valueNumeric="2"/>
+            <column name="minimo_destrezas" valueNumeric="1"/>
+            <column name="minimo_liderazgo" valueNumeric="1"/>
+            <column name="es_anio_gracia" valueBoolean="false"/>
+        </insert>
+        <insert tableName="anio_programa">
+            <column name="grupo_id" valueComputed="(select id from grupo where nombre = 'Seguidores')"/>
+            <column name="numero" valueNumeric="3"/>
+            <column name="medalla" value="ORO"/>
+            <column name="minimo_libros" valueNumeric="2"/>
+            <column name="minimo_destrezas" valueNumeric="1"/>
+            <column name="minimo_liderazgo" valueNumeric="1"/>
+            <column name="es_anio_gracia" valueBoolean="false"/>
+        </insert>
+    </changeSet>
+
+    <!-- Exploradores: 3 años con medalla + un 4to año "de gracia" sin mínimos. -->
+    <changeSet id="catalogo-002-seed-anios-exploradores" author="ascenso-backend">
+        <insert tableName="anio_programa">
+            <column name="grupo_id" valueComputed="(select id from grupo where nombre = 'Exploradores')"/>
+            <column name="numero" valueNumeric="1"/>
+            <column name="medalla" value="BRONCE"/>
+            <column name="minimo_libros" valueNumeric="2"/>
+            <column name="minimo_destrezas" valueNumeric="1"/>
+            <column name="minimo_liderazgo" valueNumeric="1"/>
+            <column name="es_anio_gracia" valueBoolean="false"/>
+        </insert>
+        <insert tableName="anio_programa">
+            <column name="grupo_id" valueComputed="(select id from grupo where nombre = 'Exploradores')"/>
+            <column name="numero" valueNumeric="2"/>
+            <column name="medalla" value="PLATA"/>
+            <column name="minimo_libros" valueNumeric="2"/>
+            <column name="minimo_destrezas" valueNumeric="1"/>
+            <column name="minimo_liderazgo" valueNumeric="1"/>
+            <column name="es_anio_gracia" valueBoolean="false"/>
+        </insert>
+        <insert tableName="anio_programa">
+            <column name="grupo_id" valueComputed="(select id from grupo where nombre = 'Exploradores')"/>
+            <column name="numero" valueNumeric="3"/>
+            <column name="medalla" value="ORO"/>
+            <column name="minimo_libros" valueNumeric="2"/>
+            <column name="minimo_destrezas" valueNumeric="1"/>
+            <column name="minimo_liderazgo" valueNumeric="1"/>
+            <column name="es_anio_gracia" valueBoolean="false"/>
+        </insert>
+        <insert tableName="anio_programa">
+            <column name="grupo_id" valueComputed="(select id from grupo where nombre = 'Exploradores')"/>
+            <column name="numero" valueNumeric="4"/>
+            <column name="minimo_libros" valueNumeric="0"/>
+            <column name="minimo_destrezas" valueNumeric="0"/>
+            <column name="minimo_liderazgo" valueNumeric="0"/>
+            <column name="es_anio_gracia" valueBoolean="true"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

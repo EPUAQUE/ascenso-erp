@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="catalogo-005-liderazgo" author="ascenso-backend">
+        <createTable tableName="liderazgo">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="grupo_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="nombre" type="VARCHAR(100)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="categoria" type="VARCHAR(50)"/>
+            <column name="activo" type="BOOLEAN" defaultValueBoolean="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="liderazgo" baseColumnNames="grupo_id"
+                referencedTableName="grupo" referencedColumnNames="id"
+                constraintName="fk_liderazgo_grupo" onDelete="RESTRICT"/>
+    </changeSet>
+
+    <changeSet id="catalogo-005-seed-liderazgos-placeholder" author="ascenso-backend">
+        <insert tableName="liderazgo">
+            <column name="grupo_id" valueComputed="(select id from grupo where nombre = 'Pioneros')"/>
+            <column name="nombre" value="Líder de escuadra"/>
+        </insert>
+        <insert tableName="liderazgo">
+            <column name="grupo_id" valueComputed="(select id from grupo where nombre = 'Seguidores')"/>
+            <column name="nombre" value="Líder de escuadra"/>
+        </insert>
+        <insert tableName="liderazgo">
+            <column name="grupo_id" valueComputed="(select id from grupo where nombre = 'Seguidores')"/>
+            <column name="nombre" value="Instructor auxiliar"/>
+        </insert>
+        <insert tableName="liderazgo">
+            <column name="grupo_id" valueComputed="(select id from grupo where nombre = 'Exploradores')"/>
+            <column name="nombre" value="Líder de escuadra"/>
+        </insert>
+        <insert tableName="liderazgo">
+            <column name="grupo_id" valueComputed="(select id from grupo where nombre = 'Exploradores')"/>
+            <column name="nombre" value="Instructor auxiliar"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

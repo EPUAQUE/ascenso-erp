@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="catalogo-006-paso-requerido" author="ascenso-backend">
+        <createTable tableName="paso_requerido">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="anio_programa_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="descripcion" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="orden" type="SMALLINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="paso_requerido" baseColumnNames="anio_programa_id"
+                referencedTableName="anio_programa" referencedColumnNames="id"
+                constraintName="fk_paso_requerido_anio_programa" onDelete="CASCADE"/>
+    </changeSet>
+
+    <!-- 1-2 pasos placeholder por cada anio_programa sembrado en 002-anio-programa.xml,
+         incluido Pre-Navegantes (para ese grupo representan juegos/actividades
+         introductorias, no medallas). -->
+    <changeSet id="catalogo-006-seed-pasos-placeholder" author="ascenso-backend">
+        <insert tableName="paso_requerido">
+            <column name="anio_programa_id" valueComputed="
+                (select ap.id from anio_programa ap join grupo g on g.id = ap.grupo_id
+                 where g.nombre = 'Pre-Navegantes' and ap.numero = 1)"/>
+            <column name="descripcion" value="Participar en 3 juegos grupales"/>
+            <column name="orden" valueNumeric="1"/>
+        </insert>
+        <insert tableName="paso_requerido">
+            <column name="anio_programa_id" valueComputed="
+                (select ap.id from anio_programa ap join grupo g on g.id = ap.grupo_id
+                 where g.nombre = 'Pre-Navegantes' and ap.numero = 1)"/>
+            <column name="descripcion" value="Aprender el saludo del grupo"/>
+            <column name="orden" valueNumeric="2"/>
+        </insert>
+        <insert tableName="paso_requerido">
+            <column name="anio_programa_id" valueComputed="
+                (select ap.id from anio_programa ap join grupo g on g.id = ap.grupo_id
+                 where g.nombre = 'Navegantes' and ap.numero = 1)"/>
+            <column name="descripcion" value="Memorizar el lema del grupo"/>
+            <column name="orden" valueNumeric="1"/>
+        </insert>
+        <insert tableName="paso_requerido">
+            <column name="anio_programa_id" valueComputed="
+                (select ap.id from anio_programa ap join grupo g on g.id = ap.grupo_id
+                 where g.nombre = 'Pioneros' and ap.numero = 1)"/>
+            <column name="descripcion" value="Participar en una acampada"/>
+            <column name="orden" valueNumeric="1"/>
+        </insert>
+        <insert tableName="paso_requerido">
+            <column name="anio_programa_id" valueComputed="
+                (select ap.id from anio_programa ap join grupo g on g.id = ap.grupo_id
+                 where g.nombre = 'Seguidores' and ap.numero = 1)"/>
+            <column name="descripcion" value="Liderar una actividad grupal"/>
+            <column name="orden" valueNumeric="1"/>
+        </insert>
+        <insert tableName="paso_requerido">
+            <column name="anio_programa_id" valueComputed="
+                (select ap.id from anio_programa ap join grupo g on g.id = ap.grupo_id
+                 where g.nombre = 'Exploradores' and ap.numero = 1)"/>
+            <column name="descripcion" value="Completar un proyecto de servicio comunitario"/>
+            <column name="orden" valueNumeric="1"/>
+        </insert>
+        <insert tableName="paso_requerido">
+            <column name="anio_programa_id" valueComputed="
+                (select ap.id from anio_programa ap join grupo g on g.id = ap.grupo_id
+                 where g.nombre = 'Exploradores' and ap.numero = 4)"/>
+            <column name="descripcion" value="Participar en el campamento anual de graduación"/>
+            <column name="orden" valueNumeric="1"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

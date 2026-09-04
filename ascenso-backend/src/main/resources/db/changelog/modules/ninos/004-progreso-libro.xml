@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="ninos-004-progreso-libro" author="ascenso-backend">
+        <createTable tableName="progreso_libro">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="nino_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="libro_biblico_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="anio_programa_objetivo_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fecha_completado" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="registrado_por" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="progreso_libro" baseColumnNames="nino_id"
+                referencedTableName="nino" referencedColumnNames="id"
+                constraintName="fk_progreso_libro_nino" onDelete="CASCADE"/>
+        <addForeignKeyConstraint
+                baseTableName="progreso_libro" baseColumnNames="libro_biblico_id"
+                referencedTableName="libro_biblico" referencedColumnNames="id"
+                constraintName="fk_progreso_libro_libro_biblico" onDelete="RESTRICT"/>
+        <addForeignKeyConstraint
+                baseTableName="progreso_libro" baseColumnNames="anio_programa_objetivo_id"
+                referencedTableName="anio_programa" referencedColumnNames="id"
+                constraintName="fk_progreso_libro_anio_programa" onDelete="RESTRICT"/>
+        <addForeignKeyConstraint
+                baseTableName="progreso_libro" baseColumnNames="registrado_por"
+                referencedTableName="usuario" referencedColumnNames="id"
+                constraintName="fk_progreso_libro_registrado_por" onDelete="RESTRICT"/>
+        <addUniqueConstraint
+                tableName="progreso_libro" columnNames="nino_id, libro_biblico_id"
+                constraintName="ux_progreso_libro_nino_libro"/>
+    </changeSet>
+</databaseChangeLog>

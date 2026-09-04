@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="catalogo-007-regla-asistencia" author="ascenso-backend">
+        <createTable tableName="regla_asistencia">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="unidad" type="VARCHAR(12)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="minimo_requerido" type="NUMERIC(5,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="vigente_desde" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <sql>ALTER TABLE regla_asistencia ADD CONSTRAINT ck_regla_asistencia_unidad
+            CHECK (unidad IN ('PORCENTAJE','SESIONES'));</sql>
+    </changeSet>
+
+    <changeSet id="catalogo-007-seed-regla-asistencia" author="ascenso-backend">
+        <insert tableName="regla_asistencia">
+            <column name="unidad" value="PORCENTAJE"/>
+            <column name="minimo_requerido" valueNumeric="75.00"/>
+            <column name="vigente_desde" valueDate="2025-01-01"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

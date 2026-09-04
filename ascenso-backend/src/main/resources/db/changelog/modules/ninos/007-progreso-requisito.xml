@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="ninos-007-progreso-requisito" author="ascenso-backend">
+        <createTable tableName="progreso_requisito">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="nino_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="paso_requerido_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="fecha_completado" type="DATE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="registrado_por" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="progreso_requisito" baseColumnNames="nino_id"
+                referencedTableName="nino" referencedColumnNames="id"
+                constraintName="fk_progreso_requisito_nino" onDelete="CASCADE"/>
+        <addForeignKeyConstraint
+                baseTableName="progreso_requisito" baseColumnNames="paso_requerido_id"
+                referencedTableName="paso_requerido" referencedColumnNames="id"
+                constraintName="fk_progreso_requisito_paso_requerido" onDelete="RESTRICT"/>
+        <addForeignKeyConstraint
+                baseTableName="progreso_requisito" baseColumnNames="registrado_por"
+                referencedTableName="usuario" referencedColumnNames="id"
+                constraintName="fk_progreso_requisito_registrado_por" onDelete="RESTRICT"/>
+        <addUniqueConstraint
+                tableName="progreso_requisito" columnNames="nino_id, paso_requerido_id"
+                constraintName="ux_progreso_requisito_nino_paso"/>
+    </changeSet>
+</databaseChangeLog>

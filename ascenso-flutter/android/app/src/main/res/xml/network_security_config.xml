@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Permite cleartext (HTTP, no HTTPS) SOLO para el/los dominios/IPs listados abajo —
+  nunca cleartextTrafficPermitted="true" a nivel de <base-config> (eso lo permitiría
+  para CUALQUIER host). Android 9+ (API 28+) bloquea cleartext por defecto para toda
+  la app si no se declara esta excepción explícita.
+
+  Este proyecto todavía no tiene un dominio de prueba/producción real (fase de
+  scaffolding) — el único dominio configurado es el alias de loopback del
+  emulador Android. ANTES de compilar contra un servidor real de pruebas sin
+  HTTPS, agrega su dominio/IP real aquí explícitamente (nunca un comodín).
+-->
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <!-- Emulador Android: 10.0.2.2 es el alias de loopback del host visto
+             desde el emulador. -->
+        <domain includeSubdomains="false">10.0.2.2</domain>
+    </domain-config>
+</network-security-config>

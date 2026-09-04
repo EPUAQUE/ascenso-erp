@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!--
+        destacamento_id nace como BIGINT plano, sin FK: en este changelog la tabla
+        `destacamento` (propiedad del módulo Destacamentos) aún no existe. La FK se
+        agrega después, en destacamentos/001-destacamento.xml, una vez que ese
+        módulo publica su changelog — mismo patrón de "FK diferida" que
+        market-backend usa entre seguridad/003-usuario-tienda.xml y
+        tiendas/001-tienda.xml.
+
+        destacamento_id es NULLABLE a propósito (a diferencia de
+        market-backend/usuario_tienda.tienda_id, que es NOT NULL): una fila con
+        este campo en NULL representa la asignación de un rol de alcance global
+        (ej. SUPERVISOR_GENERAL) sin destacamento — ver
+        UsuarioDestacamentoEntity/AdminUserSeeder. Sin esto, un usuario de alcance
+        global no tendría ninguna fila de la que PermisosEfectivosResolverImpl
+        pudiera resolver su rol/permisos.
+    -->
+    <changeSet id="seguridad-003-usuario-destacamento" author="ascenso-backend">
+        <createTable tableName="usuario_destacamento">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="usuario_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="destacamento_id" type="BIGINT"/>
+            <column name="rol_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <addForeignKeyConstraint
+                baseTableName="usuario_destacamento" baseColumnNames="usuario_id"
+                referencedTableName="usuario" referencedColumnNames="id"
+                constraintName="fk_usuario_destacamento_usuario" onDelete="CASCADE"/>
+        <addForeignKeyConstraint
+                baseTableName="usuario_destacamento" baseColumnNames="rol_id"
+                referencedTableName="rol" referencedColumnNames="id"
+                constraintName="fk_usuario_destacamento_rol" onDelete="RESTRICT"/>
+        <addUniqueConstraint
+                tableName="usuario_destacamento" columnNames="usuario_id, destacamento_id"
+                constraintName="ux_usuario_destacamento"/>
+    </changeSet>
+</databaseChangeLog>
