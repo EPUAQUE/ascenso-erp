@@ -50,7 +50,7 @@ async function onSubmit() {
       </div>
       <RouterLink
         to="/login"
-        class="mk-btn mk-btn-primary inline-block w-full rounded-full bg-mk-primary py-2.5 text-sm font-bold text-white shadow-lg shadow-mk-primary/30"
+        class="mk-btn mk-btn-primary inline-block w-full rounded-full bg-mk-primary py-2.5 text-sm font-bold text-mk-primary-ink shadow-lg shadow-mk-primary/30"
       >
         Volver a iniciar sesión
       </RouterLink>
@@ -93,7 +93,7 @@ async function onSubmit() {
       <button
         type="submit"
         :disabled="loading"
-        class="mk-btn mk-btn-primary w-full rounded-full bg-mk-primary py-2.5 text-sm font-bold text-white shadow-lg shadow-mk-primary/30 disabled:opacity-50"
+        class="mk-btn mk-btn-primary w-full rounded-full bg-mk-primary py-2.5 text-sm font-bold text-mk-primary-ink shadow-lg shadow-mk-primary/30 disabled:opacity-50"
       >
         {{ loading ? 'Enviando…' : 'Enviar enlace' }}
       </button>

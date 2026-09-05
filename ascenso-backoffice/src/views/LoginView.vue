@@ -131,7 +131,7 @@ async function onSubmit() {
       <button
         type="submit"
         :disabled="loading || isRateLimited()"
-        class="mk-btn mk-btn-primary w-full rounded-full bg-mk-primary py-2.5 text-sm font-bold text-white shadow-lg shadow-mk-primary/30 disabled:opacity-50"
+        class="mk-btn mk-btn-primary w-full rounded-full bg-mk-primary py-2.5 text-sm font-bold text-mk-primary-ink shadow-lg shadow-mk-primary/30 disabled:opacity-50"
       >
         {{ loading ? 'Ingresando…' : 'Ingresar' }}
       </button>

@@ -129,7 +129,7 @@ async function onLogout() {
             :key="item.path"
             :to="item.path"
             class="group flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-white/75 shadow-none transition-colors hover:bg-white/10 hover:text-white"
-            active-class="!bg-mk-primary !text-white !shadow-[0_4px_12px_-4px_rgba(46,139,87,0.7)]"
+            active-class="!bg-mk-primary !text-mk-primary-ink shadow-lg shadow-mk-primary/40"
           >
             <NavIcon
               :name="item.icon"
