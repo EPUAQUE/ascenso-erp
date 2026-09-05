@@ -1,0 +1,184 @@
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import ModalDialog from '@/components/common/ModalDialog.vue'
+import ActionIcon from '@/components/common/ActionIcon.vue'
+import { usePermissionsStore } from '@/stores/permissions.store'
+import { trimestreService } from '@/services/ninos/TrimestreService'
+import { ApiClientError } from '@/services/http/ApiClient'
+import type { Trimestre } from '@/types/ninos'
+
+const props = defineProps<{ trimestres: Trimestre[] }>()
+const emit = defineEmits<{ (e: 'cambiado'): void }>()
+
+const permissions = usePermissionsStore()
+const puedeEditar = computed(() => permissions.can('TRIMESTRES_EDITAR'))
+
+const trimestresOrdenados = computed(() =>
+  [...props.trimestres].sort((a, b) => b.anioCalendario - a.anioCalendario || b.numero - a.numero),
+)
+
+const formOpen = ref(false)
+const trimestreEnEdicion = ref<Trimestre | null>(null)
+const anioCalendario = ref(new Date().getFullYear())
+const numero = ref(1)
+const fechaInicio = ref('')
+const fechaFin = ref('')
+const guardando = ref(false)
+const formError = ref<string | null>(null)
+
+function abrirCrear() {
+  trimestreEnEdicion.value = null
+  anioCalendario.value = new Date().getFullYear()
+  numero.value = 1
+  fechaInicio.value = ''
+  fechaFin.value = ''
+  formError.value = null
+  formOpen.value = true
+}
+
+function abrirEditar(t: Trimestre) {
+  trimestreEnEdicion.value = t
+  anioCalendario.value = t.anioCalendario
+  numero.value = t.numero
+  fechaInicio.value = t.fechaInicio
+  fechaFin.value = t.fechaFin
+  formError.value = null
+  formOpen.value = true
+}
+
+async function onSubmit() {
+  if (guardando.value || !fechaInicio.value || !fechaFin.value) {
+    formError.value = 'Completa los campos requeridos.'
+    return
+  }
+  guardando.value = true
+  formError.value = null
+  const request = {
+    anioCalendario: anioCalendario.value,
+    numero: numero.value,
+    fechaInicio: fechaInicio.value,
+    fechaFin: fechaFin.value,
+  }
+  try {
+    if (trimestreEnEdicion.value) {
+      await trimestreService.actualizar(trimestreEnEdicion.value.id, request)
+    } else {
+      await trimestreService.crear(request)
+    }
+    emit('cambiado')
+    formOpen.value = false
+  } catch (error) {
+    formError.value = error instanceof ApiClientError ? error.message : 'No se pudo guardar el trimestre.'
+  } finally {
+    guardando.value = false
+  }
+}
+</script>
+
+<template>
+  <div class="space-y-4">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <p class="text-sm text-mk-text-muted">Calendario global — compartido por todos los destacamentos.</p>
+
+      <button v-if="puedeEditar" type="button" class="mk-btn mk-btn-primary" @click="abrirCrear">
+        <ActionIcon name="plus" class="h-4 w-4" />
+        Nuevo trimestre
+      </button>
+    </div>
+
+    <div class="mk-card mk-scroll-x overflow-x-auto">
+      <table class="w-full text-left text-sm">
+        <thead>
+          <tr
+            class="border-b border-mk-border text-xs font-semibold uppercase tracking-wider text-mk-text-muted"
+          >
+            <th class="px-4 py-3">Año</th>
+            <th class="px-4 py-3">Número</th>
+            <th class="px-4 py-3">Fecha inicio</th>
+            <th class="px-4 py-3">Fecha fin</th>
+            <th class="px-4 py-3 text-right">Acciones</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-mk-border">
+          <tr v-if="trimestresOrdenados.length === 0">
+            <td colspan="5" class="px-4 py-6 text-center text-mk-text-muted">
+              No hay trimestres para mostrar.
+            </td>
+          </tr>
+          <tr v-for="t in trimestresOrdenados" v-else :key="t.id">
+            <td class="mk-num px-4 py-2.5 font-medium text-mk-text">{{ t.anioCalendario }}</td>
+            <td class="mk-num px-4 py-2.5 text-mk-text-muted">{{ t.numero }}</td>
+            <td class="px-4 py-2.5 text-mk-text-muted">{{ t.fechaInicio }}</td>
+            <td class="px-4 py-2.5 text-mk-text-muted">{{ t.fechaFin }}</td>
+            <td class="px-4 py-2.5">
+              <div v-if="puedeEditar" class="mk-row-actions justify-end">
+                <button type="button" class="mk-row-btn" title="Editar" @click="abrirEditar(t)">
+                  <ActionIcon name="edit" />
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ModalDialog v-model="formOpen" :title="trimestreEnEdicion ? 'Editar trimestre' : 'Nuevo trimestre'">
+      <form class="space-y-4" @submit.prevent="onSubmit">
+        <p
+          v-if="formError"
+          class="rounded-md bg-mk-danger/10 px-3 py-2 text-sm font-medium text-mk-danger"
+          role="alert"
+        >
+          {{ formError }}
+        </p>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="mb-1 block text-sm font-medium text-mk-text">Año calendario</label>
+            <input
+              v-model.number="anioCalendario"
+              type="number"
+              class="mk-input w-full rounded-md border border-mk-border px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label class="mb-1 block text-sm font-medium text-mk-text">Número (1-4)</label>
+            <input
+              v-model.number="numero"
+              type="number"
+              min="1"
+              max="4"
+              class="mk-input w-full rounded-md border border-mk-border px-3 py-2 text-sm"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="mb-1 block text-sm font-medium text-mk-text">Fecha inicio</label>
+            <input
+              v-model="fechaInicio"
+              type="date"
+              class="mk-input w-full rounded-md border border-mk-border px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label class="mb-1 block text-sm font-medium text-mk-text">Fecha fin</label>
+            <input
+              v-model="fechaFin"
+              type="date"
+              class="mk-input w-full rounded-md border border-mk-border px-3 py-2 text-sm"
+            />
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" class="mk-btn mk-btn-ghost" @click="formOpen = false">Cancelar</button>
+          <button type="submit" :disabled="guardando" class="mk-btn mk-btn-primary">
+            {{ guardando ? 'Guardando…' : 'Guardar' }}
+          </button>
+        </div>
+      </form>
+    </ModalDialog>
+  </div>
+</template>
