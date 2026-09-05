@@ -12,14 +12,27 @@
  *      uno junto al otro (sidebar vs. botón activo) chocaban.
  *   v2 (descartada): brand=bronce, primary=rojo, accent=dorado. Se pidió
  *      volver a probar con azul en el sidebar.
- *   v3 (actual): brand=azul (el sidebar), primary=dorado (botones/estados
- *      activos), accent=rojo (detalles chicos: avatar, resaltados) — el
- *      rojo queda reservado a "detalles chicos" según se pidió, nunca una
- *      superficie grande, así no repite el problema de v1.
- * Con primary=dorado, --mk-pending (que ya era ámbar) se corrió hacia un
- * naranja más marcado para no leer igual que un botón; con accent=rojo,
- * --mk-danger se mantiene como un coral más suave y menos saturado que el
- * rojo de --mk-accent, por la misma razón.
+ *   v3 (descartada): brand=azul (sidebar), primary=dorado (botones/nav
+ *      activo), accent=rojo (detalles chicos). No convenció — con
+ *      primary=dorado (un color claro) --mk-primary-ink tuvo que pasar a
+ *      oscuro, y esto además destapó un bug real de `text-white`
+ *      hardcodeado en vez del token -ink en ~9 lugares (ver commit de fix
+ *      de legibilidad).
+ *   v4 (actual, "opción 3" del 2do set de sugerencias): sidebar azul
+ *      marino sigue igual que v3, pero el ítem de nav activo NO usa
+ *      --mk-primary — usa un token propio (--mk-nav-active), un azul más
+ *      claro que el degradado del sidebar, para que el resaltado de "estás
+ *      acá" se lea como una variante del propio azul de marca en vez de
+ *      competir con el rojo. --mk-primary (botones Guardar/Crear/etc. en
+ *      toda la app) vuelve a ser rojo, igual que v2, pero ahora nunca
+ *      convive con el rojo del sidebar (que ya no es rojo) ni con el ítem
+ *      de nav activo (que es azul, no rojo) — así se evita el choque de
+ *      "dos colores sólidos fuertes lado a lado" que hizo descartar v1.
+ *      accent=dorado se mantiene para detalles chicos (avatar). Con
+ *      primary=rojo otra vez, --mk-danger vuelve a estar detunado a un
+ *      coral suave y menos saturado que el rojo de --mk-primary, mismo
+ *      criterio que en v2, para que un error no se lea igual que un botón
+ *      "Guardar".
  */
 :root {
   /* Marca — azul Exploradores del Rey (puntas de la brújula): sidebar,
@@ -30,15 +43,22 @@
   --mk-brand-deep: 0 53 105; /* #003569 */
   --mk-brand-ink: 255 255 255;
 
-  /* Acción principal — dorado: botones, estados activos. Fondo claro →
-     texto/ícono oscuro para contraste, no blanco. */
-  --mk-primary: 247 197 21; /* #F7C515 */
-  --mk-primary-ink: 46 32 8;
+  /* Ítem de nav activo en el sidebar — variante MÁS CLARA del propio azul
+     de marca, deliberadamente distinta de --mk-primary (ver historial
+     arriba): el resaltado de "sección activa" es "más azul", no "rojo". */
+  --mk-nav-active: 37 121 199; /* #2579C7 */
+  --mk-nav-active-ink: 255 255 255;
 
-  /* Acento — rojo Exploradores del Rey: solo para detalles chicos (avatar,
-     resaltados), nunca una superficie grande — ver historial arriba. */
-  --mk-accent: 218 54 58; /* #DA363A */
-  --mk-accent-ink: 255 255 255;
+  /* Acción principal — rojo Exploradores del Rey: botones (Guardar,
+     Crear, Vincular…) y paginador activo en toda la app. Rojo saturado →
+     texto blanco da contraste suficiente. */
+  --mk-primary: 218 54 58; /* #DA363A */
+  --mk-primary-ink: 255 255 255;
+
+  /* Acento — dorado: solo para detalles chicos (avatar, resaltados),
+     nunca una superficie grande. */
+  --mk-accent: 247 197 21; /* #F7C515 */
+  --mk-accent-ink: 46 32 8;
 
   /* Superficies */
   --mk-bg: 248 250 252; /* #F8FAFC */
@@ -52,15 +72,16 @@
   --mk-border: 226 232 240;
 
   /* Estados semánticos — success se mantiene verde (universal, sin
-     equivalente en el logo); pending se corre a un naranja más marcado
-     para no leer como el dorado de --mk-primary; overdue sigue hacia el
-     bronce del logo (más oscuro/marrón que pending, para distinguirse);
-     danger es un coral suave, distinto del rojo sólido de --mk-accent;
-     info es un azul-gris entibiado hacia el azul de marca. */
+     equivalente en el logo); pending vuelve a un ámbar clásico (ya no
+     compite con un primary dorado como en v3); overdue sigue hacia el
+     bronce del logo; danger es un coral suave, distinto del rojo sólido
+     de --mk-primary (ver historial arriba); info es un azul-gris
+     entibiado hacia el azul de marca, pero menos saturado que
+     --mk-nav-active para no confundirse con "sección activa". */
   --mk-success: 59 170 104; /* #3BAA68 — Activo */
-  --mk-pending: 226 150 42; /* #E2962A — Pendiente, distinto del dorado de --mk-primary */
+  --mk-pending: 217 154 43; /* #D99A2B — Pendiente */
   --mk-overdue: 189 110 45; /* #BD6E2D — Vencido, hacia el bronce del logo */
-  --mk-danger: 214 95 90; /* #D65F5A — Error, coral suave, distinto del rojo de --mk-accent */
+  --mk-danger: 214 95 90; /* #D65F5A — Error, coral suave, distinto del rojo de --mk-primary */
   --mk-info: 84 116 153; /* #547499 — Informativo, gris-azulado hacia el azul de marca */
 }
 
@@ -74,8 +95,9 @@
 :root[data-theme='dark'] {
   --mk-brand: 0 51 100; /* #003364 */
   --mk-brand-deep: 0 31 60; /* #001F3C */
-  --mk-primary: 240 200 60; /* #F0C83C */
-  --mk-accent: 232 90 94; /* #E85A5E */
+  --mk-nav-active: 58 130 199; /* #3A82C7 */
+  --mk-primary: 232 90 94; /* #E85A5E */
+  --mk-accent: 240 200 60; /* #F0C83C */
   --mk-bg: 16 23 26; /* #10171A */
   --mk-surface: 23 31 34; /* #171F22 */
   --mk-surface-2: 35 43 46; /* #232B2E */
@@ -86,7 +108,7 @@
   --mk-border: 42 52 55; /* #2A3437 */
 
   --mk-success: 85 199 138; /* #55C78A */
-  --mk-pending: 235 175 90; /* #EBAF5A */
+  --mk-pending: 224 165 90; /* #E0A55A */
   --mk-overdue: 224 150 90; /* #E09650 */
   --mk-danger: 240 130 122; /* #F0827A */
   --mk-info: 148 163 184; /* #94A3B8 */

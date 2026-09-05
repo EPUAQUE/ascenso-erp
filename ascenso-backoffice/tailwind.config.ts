@@ -8,6 +8,8 @@ export default {
         'mk-brand': 'rgb(var(--mk-brand) / <alpha-value>)',
         'mk-brand-deep': 'rgb(var(--mk-brand-deep) / <alpha-value>)',
         'mk-brand-ink': 'rgb(var(--mk-brand-ink) / <alpha-value>)',
+        'mk-nav-active': 'rgb(var(--mk-nav-active) / <alpha-value>)',
+        'mk-nav-active-ink': 'rgb(var(--mk-nav-active-ink) / <alpha-value>)',
         'mk-primary': 'rgb(var(--mk-primary) / <alpha-value>)',
         'mk-primary-ink': 'rgb(var(--mk-primary-ink) / <alpha-value>)',
         'mk-accent': 'rgb(var(--mk-accent) / <alpha-value>)',

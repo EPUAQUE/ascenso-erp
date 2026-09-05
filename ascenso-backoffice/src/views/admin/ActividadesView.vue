@@ -43,7 +43,7 @@ onMounted(async () => {
           class="shrink-0 rounded-md px-3 py-1.5 text-sm font-medium transition-colors"
           :class="
             tab.id === tabActual
-              ? 'bg-mk-primary text-mk-primary-ink'
+              ? 'bg-mk-nav-active text-mk-nav-active-ink'
               : 'text-mk-text-muted hover:bg-mk-surface-2 hover:text-mk-text'
           "
           @click="tabActual = tab.id"
