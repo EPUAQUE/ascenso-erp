@@ -5,9 +5,6 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
 
-    <!-- Solo esquema (Fase 1): sin entidad/repositorio/servicio/controller Java
-         todavía — esta tabla queda lista en base de datos para una fase futura del
-         producto (registro y seguimiento de niños). -->
     <changeSet id="ninos-001-nino" author="ascenso-backend">
         <createTable tableName="nino">
             <column name="id" type="BIGINT" autoIncrement="true">

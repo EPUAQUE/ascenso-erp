@@ -32,10 +32,13 @@
     <include file="db/changelog/modules/ninos/007-progreso-requisito.xml" relativeToChangelogFile="false"/>
     <include file="db/changelog/modules/ninos/008-medalla-otorgada.xml" relativeToChangelogFile="false"/>
     <include file="db/changelog/modules/ninos/009-logro-mayor.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/ninos/010-seed-permisos-nino.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/ninos/011-seed-permisos-trimestre.xml" relativeToChangelogFile="false"/>
 
     <include file="db/changelog/modules/actividades/001-actividad.xml" relativeToChangelogFile="false"/>
     <include file="db/changelog/modules/actividades/002-anuncio.xml" relativeToChangelogFile="false"/>
     <include file="db/changelog/modules/actividades/003-nino-padre.xml" relativeToChangelogFile="false"/>
+    <include file="db/changelog/modules/actividades/004-seed-permisos.xml" relativeToChangelogFile="false"/>
 
     <!-- Va al final: otorga a SUPERVISOR_GENERAL todo permiso sembrado por cualquier
          módulo de arriba (incluido este propio archivo) — alcance_global=true solo

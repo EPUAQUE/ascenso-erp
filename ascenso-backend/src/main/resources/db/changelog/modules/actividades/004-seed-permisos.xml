@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- ACTIVIDADES_VER/EDITAR para LIDER_PRINCIPAL/LIDER_GRUPO — dato operativo del
+         destacamento, mismo criterio que NINOS_VER/EDITAR (ver ninos/010). -->
+    <changeSet id="actividades-004-seed-permisos-actividad" author="ascenso-backend">
+        <insert tableName="permiso">
+            <column name="codigo" value="ACTIVIDADES_VER"/>
+            <column name="descripcion" value="Consultar las actividades de un destacamento"/>
+        </insert>
+        <insert tableName="permiso">
+            <column name="codigo" value="ACTIVIDADES_EDITAR"/>
+            <column name="descripcion" value="Registrar y editar actividades de un destacamento"/>
+        </insert>
+        <insert tableName="rol_permiso">
+            <column name="rol_id" valueComputed="(select id from rol where nombre = 'LIDER_PRINCIPAL')"/>
+            <column name="permiso_id" valueComputed="(select id from permiso where codigo = 'ACTIVIDADES_VER')"/>
+        </insert>
+        <insert tableName="rol_permiso">
+            <column name="rol_id" valueComputed="(select id from rol where nombre = 'LIDER_PRINCIPAL')"/>
+            <column name="permiso_id" valueComputed="(select id from permiso where codigo = 'ACTIVIDADES_EDITAR')"/>
+        </insert>
+        <insert tableName="rol_permiso">
+            <column name="rol_id" valueComputed="(select id from rol where nombre = 'LIDER_GRUPO')"/>
+            <column name="permiso_id" valueComputed="(select id from permiso where codigo = 'ACTIVIDADES_VER')"/>
+        </insert>
+        <insert tableName="rol_permiso">
+            <column name="rol_id" valueComputed="(select id from rol where nombre = 'LIDER_GRUPO')"/>
+            <column name="permiso_id" valueComputed="(select id from permiso where codigo = 'ACTIVIDADES_EDITAR')"/>
+        </insert>
+    </changeSet>
+
+    <!-- ANUNCIOS_VER también para PADRE — a diferencia de actividad (operativo,
+         interno), un anuncio es contenido global pensado explícitamente para
+         llegar a los padres (portal de padres). Primer permiso que recibe ese rol
+         en todo el sistema. ANUNCIOS_EDITAR queda solo para SUPERVISOR_GENERAL
+         (otorgado por el changeset 999 de seguridad) — anuncio no tiene
+         destacamento_id, es contenido de difusión global. -->
+    <changeSet id="actividades-004-seed-permisos-anuncio" author="ascenso-backend">
+        <insert tableName="permiso">
+            <column name="codigo" value="ANUNCIOS_VER"/>
+            <column name="descripcion" value="Consultar los anuncios globales"/>
+        </insert>
+        <insert tableName="permiso">
+            <column name="codigo" value="ANUNCIOS_EDITAR"/>
+            <column name="descripcion" value="Publicar y editar anuncios globales"/>
+        </insert>
+        <insert tableName="rol_permiso">
+            <column name="rol_id" valueComputed="(select id from rol where nombre = 'LIDER_PRINCIPAL')"/>
+            <column name="permiso_id" valueComputed="(select id from permiso where codigo = 'ANUNCIOS_VER')"/>
+        </insert>
+        <insert tableName="rol_permiso">
+            <column name="rol_id" valueComputed="(select id from rol where nombre = 'LIDER_GRUPO')"/>
+            <column name="permiso_id" valueComputed="(select id from permiso where codigo = 'ANUNCIOS_VER')"/>
+        </insert>
+        <insert tableName="rol_permiso">
+            <column name="rol_id" valueComputed="(select id from rol where nombre = 'PADRE')"/>
+            <column name="permiso_id" valueComputed="(select id from permiso where codigo = 'ANUNCIOS_VER')"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
