@@ -32,8 +32,8 @@ Cada módulo de negocio vive directamente bajo este paquete raíz:
 | Seguridad | `seguridad` | Usuarios, roles, permisos, autenticación JWT | Java completo |
 | Destacamentos | `destacamentos` | Catálogo de destacamentos (grupos locales) | Java completo |
 | Catálogo | `catalogo` | Grupos etarios, años de programa, libros bíblicos, destrezas, liderazgo, pasos requeridos, reglas de asistencia | Java completo |
-| Niños | (tablas `nino`, `trimestre`, `asistencia`, `progreso_*`, `medalla_otorgada`, `logro_mayor`) | Registro y seguimiento de niños, asistencia y avance | Solo esquema (Liquibase) — sin Java todavía |
-| Actividades | (tablas `actividad`, `anuncio`, `nino_padre`) | Actividades por destacamento, anuncios globales, portal de padres | Solo esquema (Liquibase) — sin Java todavía |
+| Niños | `ninos` (9 agregados: `Nino`, `Trimestre`, `Asistencia`, 4 `Progreso*`, `MedallaOtorgada`, `LogroMayor`) | Registro y seguimiento de niños, asistencia y avance | Java completo |
+| Actividades | `actividades` (3 agregados: `Actividad`, `Anuncio`, `NinoPadre`) | Actividades por destacamento, anuncios globales, portal de padres | Java completo |
 
 Los nombres de los paquetes se escriben siempre en minúsculas, sin guiones ni
 guiones bajos.
@@ -253,8 +253,8 @@ src/main/resources/db/changelog/
     ├── seguridad/001-usuario.xml …
     ├── destacamentos/001-destacamento.xml
     ├── catalogo/001-grupo.xml …
-    ├── ninos/001-nino.xml …          (solo esquema, sin código Java todavía)
-    └── actividades/001-actividad.xml … (solo esquema, sin código Java todavía)
+    ├── ninos/001-nino.xml …          (Java completo)
+    └── actividades/001-actividad.xml … (Java completo)
 ```
 
 - Un changeset por cambio de esquema, nunca editar un changeset ya aplicado en un

@@ -24,11 +24,21 @@ refresh token en cookie, RBAC con roles `SUPERVISOR_GENERAL` /
 `destacamento`), las 21 tablas del modelo de datos aplicadas vía Liquibase,
 y login funcionando de punta a punta en los tres clientes.
 
-**Lo que NO existe todavía** (siguiente fase): pantallas y lógica de
-negocio para niños, asistencia, progreso de premios, medallas, actividades
-y anuncios. Los módulos `catalogo` (grupos, libros, destrezas, liderazgo,
-pasos requeridos, regla de asistencia) y `destacamentos` sí tienen CRUD
-completo; el resto de las 21 tablas existe solo como esquema.
+Backend con lógica de negocio completa en todos los módulos: `seguridad`,
+`destacamentos`, `catalogo` (grupos, libros, destrezas, liderazgo, pasos
+requeridos, regla de asistencia), `ninos` (niño, trimestre, asistencia,
+progreso de libros/destrezas/liderazgo/pasos, medallas, logro mayor) y
+`actividades` (actividad por destacamento, anuncios globales, vínculo
+niño-padre). Backoffice con pantallas funcionales para `catalogo`, `ninos`
+(incluida la ficha del niño con su progreso), `asistencia` y `actividades`
+— todo módulo del backend ya tiene su pantalla en el backoffice.
+
+Paleta de colores del backoffice tomada del logo oficial de Exploradores
+del Rey (`ascenso-design/logo-exploradores.png`): sidebar azul, acción
+primaria dorada, acentos en rojo.
+
+**Lo que NO existe todavía**: pantallas de la app Flutter más allá de
+autenticación.
 
 Ver `ascenso-backend/ARCHITECTURE.md` y `ascenso-backend/seguridad-desarrolladores.md`
 para el detalle de la arquitectura y el modelo de seguridad.
