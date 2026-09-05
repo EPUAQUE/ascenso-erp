@@ -1,0 +1,15 @@
+import { apiClient } from '@/services/http/ApiClient'
+import { API_ENDPOINTS } from '@/config/endpoints'
+import type { ActualizarGrupoRequest, Grupo } from '@/types/catalogo'
+
+class GrupoService {
+  listar() {
+    return apiClient.get<Grupo[]>(API_ENDPOINTS.catalogo.grupos)
+  }
+
+  actualizar(id: number, request: ActualizarGrupoRequest) {
+    return apiClient.put<Grupo>(API_ENDPOINTS.catalogo.grupoPorId(id), request)
+  }
+}
+
+export const grupoService = new GrupoService()
