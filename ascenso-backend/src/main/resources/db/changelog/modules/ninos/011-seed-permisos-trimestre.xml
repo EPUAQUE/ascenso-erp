@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- TRIMESTRES_VER para LIDER_PRINCIPAL/LIDER_GRUPO — necesitan consultar el
+         calendario de trimestres para registrar asistencia, pero no editarlo.
+         TRIMESTRES_EDITAR queda solo para SUPERVISOR_GENERAL (otorgado por el
+         changeset 999 del módulo seguridad) — mismo criterio que CATALOGO_EDITAR:
+         calendario global compartido por todos los destacamentos. -->
+    <changeSet id="ninos-011-seed-permisos-trimestre" author="ascenso-backend">
+        <insert tableName="permiso">
+            <column name="codigo" value="TRIMESTRES_VER"/>
+            <column name="descripcion" value="Consultar el calendario de trimestres"/>
+        </insert>
+        <insert tableName="permiso">
+            <column name="codigo" value="TRIMESTRES_EDITAR"/>
+            <column name="descripcion" value="Editar el calendario de trimestres"/>
+        </insert>
+        <insert tableName="rol_permiso">
+            <column name="rol_id" valueComputed="(select id from rol where nombre = 'LIDER_PRINCIPAL')"/>
+            <column name="permiso_id" valueComputed="(select id from permiso where codigo = 'TRIMESTRES_VER')"/>
+        </insert>
+        <insert tableName="rol_permiso">
+            <column name="rol_id" valueComputed="(select id from rol where nombre = 'LIDER_GRUPO')"/>
+            <column name="permiso_id" valueComputed="(select id from permiso where codigo = 'TRIMESTRES_VER')"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>

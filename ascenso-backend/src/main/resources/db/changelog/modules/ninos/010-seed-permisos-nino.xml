@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <!-- NINOS_VER/NINOS_EDITAR para LIDER_PRINCIPAL/LIDER_GRUPO — a diferencia de
+         CATALOGO_EDITAR (solo SUPERVISOR_GENERAL, catálogo global de baja
+         frecuencia), el registro de niños es dato operativo del destacamento que
+         ambos roles de liderazgo local deben poder editar día a día. SUPERVISOR_GENERAL
+         recibe ambos vía el changeset 999 del módulo seguridad. -->
+    <changeSet id="ninos-010-seed-permisos-nino" author="ascenso-backend">
+        <insert tableName="permiso">
+            <column name="codigo" value="NINOS_VER"/>
+            <column name="descripcion" value="Consultar los niños registrados de un destacamento"/>
+        </insert>
+        <insert tableName="permiso">
+            <column name="codigo" value="NINOS_EDITAR"/>
+            <column name="descripcion" value="Registrar y editar niños de un destacamento"/>
+        </insert>
+        <insert tableName="rol_permiso">
+            <column name="rol_id" valueComputed="(select id from rol where nombre = 'LIDER_PRINCIPAL')"/>
+            <column name="permiso_id" valueComputed="(select id from permiso where codigo = 'NINOS_VER')"/>
+        </insert>
+        <insert tableName="rol_permiso">
+            <column name="rol_id" valueComputed="(select id from rol where nombre = 'LIDER_PRINCIPAL')"/>
+            <column name="permiso_id" valueComputed="(select id from permiso where codigo = 'NINOS_EDITAR')"/>
+        </insert>
+        <insert tableName="rol_permiso">
+            <column name="rol_id" valueComputed="(select id from rol where nombre = 'LIDER_GRUPO')"/>
+            <column name="permiso_id" valueComputed="(select id from permiso where codigo = 'NINOS_VER')"/>
+        </insert>
+        <insert tableName="rol_permiso">
+            <column name="rol_id" valueComputed="(select id from rol where nombre = 'LIDER_GRUPO')"/>
+            <column name="permiso_id" valueComputed="(select id from permiso where codigo = 'NINOS_EDITAR')"/>
+        </insert>
+    </changeSet>
+</databaseChangeLog>
