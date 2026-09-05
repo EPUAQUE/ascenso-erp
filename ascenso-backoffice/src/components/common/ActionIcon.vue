@@ -47,5 +47,11 @@ defineProps<{ name: string }>()
       <circle cx="8" cy="15" r="4" />
       <path d="m10.8 12.2 8.7-8.7M16 7l2 2M19 4l2 2" />
     </template>
+    <template v-else-if="name === 'plus'">
+      <path d="M12 5v14M5 12h14" />
+    </template>
+    <template v-else-if="name === 'arrow-up'">
+      <path d="M12 19V5M5 12l7-7 7 7" />
+    </template>
   </svg>
 </template>

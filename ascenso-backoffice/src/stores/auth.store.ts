@@ -4,6 +4,7 @@ import { refreshAccessToken } from '@/services/http/ApiClient'
 import { tokenService } from '@/services/http/token.service'
 import { usePermissionsStore } from './permissions.store'
 import { useUserStore } from './user.store'
+import { useDestacamentoStore } from './destacamento.store'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -47,6 +48,7 @@ export const useAuthStore = defineStore('auth', {
         tokenService.clear()
         usePermissionsStore().clear()
         useUserStore().clear()
+        useDestacamentoStore().clear()
         this.authorizationLoaded = false
       }
     },
