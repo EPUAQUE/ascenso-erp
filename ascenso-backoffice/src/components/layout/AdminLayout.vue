@@ -34,7 +34,8 @@ const navGroups: NavGroup[] = [
     label: 'Programa',
     items: [
       { label: 'Niños', path: '/ninos', icon: 'ninos' },
-      { label: 'Catálogo', path: '/catalogo', icon: 'catalogo' },
+      { label: 'Grupos', path: '/grupos', icon: 'grupos' },
+      { label: 'Reglas de asistencia', path: '/reglas-asistencia', icon: 'reglas' },
       { label: 'Asistencia', path: '/asistencia', icon: 'asistencia' },
       { label: 'Actividades', path: '/actividades', icon: 'actividades' },
     ],

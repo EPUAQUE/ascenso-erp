@@ -90,7 +90,7 @@ async function onSubmit() {
             <td class="px-4 py-2.5">
               <div class="mk-row-actions justify-end">
                 <RouterLink
-                  :to="{ name: 'catalogo-grupo-anios', params: { grupoId: g.id } }"
+                  :to="{ name: 'grupo-anios', params: { grupoId: g.id } }"
                   class="mk-row-btn mk-row-btn-neutral"
                   title="Ver años, libros, destrezas, liderazgo y pasos"
                 >
