@@ -1,6 +1,7 @@
 package com.ais.ascensobackend.destacamentos.domain.repository;
 
 import com.ais.ascensobackend.destacamentos.domain.model.Destacamento;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,4 +14,6 @@ public interface DestacamentoRepository {
     boolean existsByNumeroUnico(String numeroUnico);
 
     List<Destacamento> findAll();
+
+    List<Destacamento> findAllById(Collection<Long> ids);
 }

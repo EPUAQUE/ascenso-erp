@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
-import { destacamentoService } from '@/services/destacamentos/DestacamentoService'
-import { usePermissionsStore } from './permissions.store'
+import { authService } from '@/services/auth/AuthService'
 
 interface DestacamentoOpcion {
   id: number
@@ -17,24 +16,15 @@ export const useDestacamentoStore = defineStore('destacamento', {
   }),
   actions: {
     /**
-     * Con alcance global (SUPERVISOR_GENERAL) se listan todos los destacamentos
-     * vía DESTACAMENTOS_VER (nombre real). Un LIDER_PRINCIPAL/LIDER_GRUPO no tiene
-     * ese permiso — solo conoce sus propios `destacamentoIds` (sin nombre, ver
-     * MeResponse), así que se muestran como "Destacamento #id" hasta que el
-     * backend exponga una forma de resolver el nombre para un usuario con
-     * alcance limitado.
+     * `/auth/mis-destacamentos` resuelve el nombre real de los destacamentos del
+     * usuario autenticado (propios si es LIDER_PRINCIPAL/LIDER_GRUPO, el catálogo
+     * completo si tiene alcance global) sin requerir DESTACAMENTOS_VER — autoservicio,
+     * mismo mecanismo que `/auth/me`.
      */
     async cargar() {
       if (this.cargado) return
-      const permissions = usePermissionsStore()
-      if (permissions.alcanceGlobal) {
-        const destacamentos = await destacamentoService.listar()
-        this.opciones = destacamentos.filter((d) => d.activo).map((d) => ({ id: d.id, nombre: d.nombre }))
-      } else {
-        this.opciones = [...permissions.destacamentoIds]
-          .sort((a, b) => a - b)
-          .map((id) => ({ id, nombre: `Destacamento #${id}` }))
-      }
+      const destacamentos = await authService.misDestacamentos()
+      this.opciones = destacamentos.filter((d) => d.activo).map((d) => ({ id: d.id, nombre: d.nombre }))
       this.cargado = true
       this.restaurarOEscogerPrimero()
     },

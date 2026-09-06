@@ -1,8 +1,11 @@
 package com.ais.ascensobackend.seguridad.application.services.impl;
 
+import com.ais.ascensobackend.destacamentos.application.dtos.DestacamentoResumen;
+import com.ais.ascensobackend.destacamentos.application.services.interfaces.DestacamentoService;
 import com.ais.ascensobackend.destacamentos.domain.model.Destacamento;
 import com.ais.ascensobackend.destacamentos.domain.repository.DestacamentoRepository;
 import com.ais.ascensobackend.seguridad.application.dtos.UsuarioDestacamentoResumen;
+import com.ais.ascensobackend.seguridad.application.dtos.UsuarioNombreResumen;
 import com.ais.ascensobackend.seguridad.application.dtos.UsuarioResumen;
 import com.ais.ascensobackend.seguridad.application.services.interfaces.AutorizacionDestacamentoService;
 import com.ais.ascensobackend.seguridad.application.services.interfaces.UsuarioService;
@@ -24,6 +27,7 @@ import com.ais.ascensobackend.seguridad.domain.service.TipoEventoAuditoria;
 import com.ais.ascensobackend.seguridad.domain.service.UsernameCanonicalizer;
 import com.ais.ascensobackend.seguridad.infrastructure.security.SeguridadProperties;
 import com.ais.ascensobackend.shared.exceptions.ResourceNotFoundException;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -41,6 +45,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final UsuarioDestacamentoRepository usuarioDestacamentoRepository;
     private final RolRepository rolRepository;
     private final DestacamentoRepository destacamentoRepository;
+    private final DestacamentoService destacamentoService;
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final PermisosEfectivosResolver permisosEfectivosResolver;
@@ -53,6 +58,7 @@ public class UsuarioServiceImpl implements UsuarioService {
             UsuarioDestacamentoRepository usuarioDestacamentoRepository,
             RolRepository rolRepository,
             DestacamentoRepository destacamentoRepository,
+            DestacamentoService destacamentoService,
             RefreshTokenRepository refreshTokenRepository,
             PasswordEncoder passwordEncoder,
             PermisosEfectivosResolver permisosEfectivosResolver,
@@ -63,6 +69,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         this.usuarioDestacamentoRepository = usuarioDestacamentoRepository;
         this.rolRepository = rolRepository;
         this.destacamentoRepository = destacamentoRepository;
+        this.destacamentoService = destacamentoService;
         this.refreshTokenRepository = refreshTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.permisosEfectivosResolver = permisosEfectivosResolver;
@@ -262,6 +269,25 @@ public class UsuarioServiceImpl implements UsuarioService {
         auditPublisher.publicar(
                 TipoEventoAuditoria.USUARIO_ACTIVADO, UUID.randomUUID().toString(), "usuarioId=" + usuarioId);
         return toResumen(guardado);
+    }
+
+    @Override
+    public List<UsuarioNombreResumen> listarNombres(Collection<Long> ids) {
+        if (ids.isEmpty()) {
+            return List.of();
+        }
+        return usuarioRepository.findAllById(ids).stream()
+                .map(usuario -> new UsuarioNombreResumen(usuario.getId(), usuario.getNombre()))
+                .toList();
+    }
+
+    @Override
+    public List<DestacamentoResumen> misDestacamentos(String username) {
+        PermisosEfectivos permisos = obtenerPermisosEfectivosPorUsername(username);
+        if (permisos.alcanceGlobal()) {
+            return destacamentoService.listar();
+        }
+        return destacamentoService.listarPorIds(permisos.destacamentoIds());
     }
 
     private void exigirNoEscalaAlcanceGlobal(Rol rol) {

@@ -6,11 +6,20 @@ import type {
   RestablecerPasswordResponse,
   Usuario,
   UsuarioDestacamento,
+  UsuarioNombre,
 } from '@/types/seguridad'
 
 class UsuarioService {
   listar() {
     return apiClient.get<Usuario[]>(API_ENDPOINTS.usuarios.base)
+  }
+
+  /** Autoservicio: resuelve solo el nombre para un conjunto de usuario ids, sin requerir USUARIOS_VER. */
+  resolverNombres(ids: number[]) {
+    if (ids.length === 0) return Promise.resolve<UsuarioNombre[]>([])
+    return apiClient.get<UsuarioNombre[]>(API_ENDPOINTS.usuarios.resolverNombres, {
+      params: { ids: ids.join(',') },
+    })
   }
 
   crear(request: CrearUsuarioRequest) {

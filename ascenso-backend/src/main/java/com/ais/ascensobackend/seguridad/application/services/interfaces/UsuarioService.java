@@ -1,8 +1,11 @@
 package com.ais.ascensobackend.seguridad.application.services.interfaces;
 
+import com.ais.ascensobackend.destacamentos.application.dtos.DestacamentoResumen;
 import com.ais.ascensobackend.seguridad.application.dtos.UsuarioDestacamentoResumen;
+import com.ais.ascensobackend.seguridad.application.dtos.UsuarioNombreResumen;
 import com.ais.ascensobackend.seguridad.application.dtos.UsuarioResumen;
 import com.ais.ascensobackend.seguridad.domain.model.PermisosEfectivos;
+import java.util.Collection;
 import java.util.List;
 
 public interface UsuarioService {
@@ -77,4 +80,22 @@ public interface UsuarioService {
 
     /** Reactiva una cuenta {@code INACTIVO} o {@code BLOQUEADO} — vuelve a {@code ACTIVO}. */
     UsuarioResumen activar(Long usuarioId);
+
+    /**
+     * Autoservicio: resuelve solo el nombre (sin username/estado/teléfono/correo) para
+     * un conjunto de usuario ids, sin exigir {@code USUARIOS_VER} — pensado para mostrar
+     * nombres reales en vínculos como {@code nino_padre}, donde quien administra el
+     * vínculo (vía {@code NINOS_EDITAR}) no necesariamente tiene acceso al listado
+     * completo de usuarios. Ignora los ids que no existan.
+     */
+    List<UsuarioNombreResumen> listarNombres(Collection<Long> ids);
+
+    /**
+     * Autoservicio: resuelve los destacamentos propios del usuario autenticado (id +
+     * nombre real), sin exigir {@code DESTACAMENTOS_VER} — un LIDER_PRINCIPAL/LIDER_GRUPO
+     * solo conoce sus propios destacamentoIds (ver {@code PermisosEfectivos}), nunca sus
+     * nombres. Con alcance global devuelve el catálogo completo (mismo resultado que
+     * {@code DestacamentosController.listar}).
+     */
+    List<DestacamentoResumen> misDestacamentos(String username);
 }

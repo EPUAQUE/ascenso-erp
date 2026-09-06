@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import ActionIcon from '@/components/common/ActionIcon.vue'
 import { usePermissionsStore } from '@/stores/permissions.store'
+import { usuarioService } from '@/services/seguridad/UsuarioService'
 import { ApiClientError } from '@/services/http/ApiClient'
 import type { NinoPadre } from '@/types/actividades'
 
@@ -17,12 +18,19 @@ const puedeEditar = computed(() => permissions.can('NINOS_EDITAR'))
 const padres = ref<NinoPadre[]>([])
 const cargando = ref(false)
 const errorMessage = ref<string | null>(null)
+const nombresPorId = ref<Map<number, string>>(new Map())
+
+function nombreDe(usuarioId: number): string {
+  return nombresPorId.value.get(usuarioId) ?? `Usuario #${usuarioId}`
+}
 
 async function cargar() {
   cargando.value = true
   errorMessage.value = null
   try {
     padres.value = await props.listar()
+    const nombres = await usuarioService.resolverNombres(padres.value.map((p) => p.usuarioId))
+    nombresPorId.value = new Map(nombres.map((n) => [n.id, n.nombre]))
   } catch (error) {
     errorMessage.value =
       error instanceof ApiClientError ? error.message : 'No se pudo cargar los padres vinculados.'
@@ -47,6 +55,10 @@ async function onVincular() {
   try {
     const creado = await props.vincular(usuarioId.value)
     padres.value.push(creado)
+    if (!nombresPorId.value.has(creado.usuarioId)) {
+      const [nombre] = await usuarioService.resolverNombres([creado.usuarioId])
+      if (nombre) nombresPorId.value.set(nombre.id, nombre.nombre)
+    }
     usuarioId.value = null
   } catch (error) {
     formError.value = error instanceof ApiClientError ? error.message : 'No se pudo vincular al padre.'
@@ -68,10 +80,7 @@ async function onDesvincular(p: NinoPadre) {
 
 <template>
   <div class="max-w-lg space-y-4">
-    <p class="text-sm text-mk-text-muted">
-      Usuarios (rol PADRE) que pueden ver el progreso de este niño. Solo se conoce el ID del usuario — no hay
-      forma de resolver su nombre desde este rol todavía.
-    </p>
+    <p class="text-sm text-mk-text-muted">Usuarios (rol PADRE) que pueden ver el progreso de este niño.</p>
 
     <p
       v-if="errorMessage"
@@ -92,7 +101,7 @@ async function onDesvincular(p: NinoPadre) {
           :key="p.usuarioId"
           class="flex items-center justify-between px-4 py-2.5 text-sm"
         >
-          <span class="font-medium text-mk-text">Usuario #{{ p.usuarioId }}</span>
+          <span class="font-medium text-mk-text">{{ nombreDe(p.usuarioId) }}</span>
           <button
             v-if="puedeEditar"
             type="button"

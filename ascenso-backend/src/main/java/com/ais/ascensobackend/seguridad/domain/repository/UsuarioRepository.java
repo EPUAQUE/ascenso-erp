@@ -1,6 +1,7 @@
 package com.ais.ascensobackend.seguridad.domain.repository;
 
 import com.ais.ascensobackend.seguridad.domain.model.Usuario;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,4 +24,6 @@ public interface UsuarioRepository {
     boolean existsByUsername(String username);
 
     List<Usuario> findAll();
+
+    List<Usuario> findAllById(Collection<Long> ids);
 }

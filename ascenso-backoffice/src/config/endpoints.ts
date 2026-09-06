@@ -4,11 +4,13 @@ export const API_ENDPOINTS = {
     refresh: '/api/v1/auth/refresh',
     logout: '/api/v1/auth/logout',
     me: '/api/v1/auth/me',
+    misDestacamentos: '/api/v1/auth/mis-destacamentos',
     forgotPassword: '/api/v1/auth/forgot-password',
     resetPassword: '/api/v1/auth/reset-password',
   },
   usuarios: {
     base: '/api/v1/usuarios',
+    resolverNombres: '/api/v1/usuarios/resolver-nombres',
     destacamentos: (id: number) => `/api/v1/usuarios/${id}/destacamentos`,
     restablecerPassword: (id: number) => `/api/v1/usuarios/${id}/password/restablecer`,
     revocarSesiones: (id: number) => `/api/v1/usuarios/${id}/sesiones/revocar`,

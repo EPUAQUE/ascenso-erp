@@ -4,6 +4,7 @@ import com.ais.ascensobackend.seguridad.domain.model.Usuario;
 import com.ais.ascensobackend.seguridad.domain.repository.UsuarioRepository;
 import com.ais.ascensobackend.seguridad.infrastructure.persistence.mappers.UsuarioEntityMapper;
 import com.ais.ascensobackend.seguridad.infrastructure.persistence.repositories.UsuarioJpaRepository;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Sort;
@@ -50,5 +51,10 @@ public class UsuarioRepositoryAdapter implements UsuarioRepository {
     @Override
     public List<Usuario> findAll() {
         return jpaRepository.findAll(MAS_RECIENTE_PRIMERO).stream().map(mapper::toDomain).toList();
+    }
+
+    @Override
+    public List<Usuario> findAllById(Collection<Long> ids) {
+        return jpaRepository.findAllById(ids).stream().map(mapper::toDomain).toList();
     }
 }

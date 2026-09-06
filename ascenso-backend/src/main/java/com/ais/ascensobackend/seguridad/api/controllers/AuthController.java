@@ -1,5 +1,7 @@
 package com.ais.ascensobackend.seguridad.api.controllers;
 
+import com.ais.ascensobackend.destacamentos.api.dtos.responses.DestacamentoResponse;
+import com.ais.ascensobackend.destacamentos.api.mappers.DestacamentoApiMapper;
 import com.ais.ascensobackend.seguridad.api.dtos.requests.CambiarPasswordRequest;
 import com.ais.ascensobackend.seguridad.api.dtos.requests.ForgotPasswordRequest;
 import com.ais.ascensobackend.seguridad.api.dtos.requests.LoginRequest;
@@ -17,6 +19,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -48,6 +51,7 @@ public class AuthController {
     private final AuthService authService;
     private final UsuarioService usuarioService;
     private final SeguridadProperties properties;
+    private final DestacamentoApiMapper destacamentoMapper;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request, HttpServletRequest http) {
@@ -81,6 +85,21 @@ public class AuthController {
                 .destacamentoIds(permisos.destacamentoIds())
                 .alcanceGlobal(permisos.alcanceGlobal())
                 .build());
+    }
+
+    /**
+     * Autoservicio: cualquier usuario autenticado resuelve el nombre real de sus
+     * propios destacamentos (id + nombre), sin requerir {@code DESTACAMENTOS_VER} —
+     * un LIDER_PRINCIPAL/LIDER_GRUPO solo conoce sus propios destacamentoIds (ver
+     * {@link #me}), nunca sus nombres. Con alcance global devuelve el catálogo
+     * completo, igual que {@code DestacamentoController.listar}.
+     */
+    @GetMapping("/mis-destacamentos")
+    public ResponseEntity<List<DestacamentoResponse>> misDestacamentos(@AuthenticationPrincipal Jwt jwt) {
+        List<DestacamentoResponse> destacamentos = usuarioService.misDestacamentos(jwt.getSubject()).stream()
+                .map(destacamentoMapper::toResponse)
+                .toList();
+        return ResponseEntity.ok(destacamentos);
     }
 
     /**

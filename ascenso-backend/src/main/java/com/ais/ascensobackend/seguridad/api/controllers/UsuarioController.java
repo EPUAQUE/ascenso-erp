@@ -4,6 +4,7 @@ import com.ais.ascensobackend.seguridad.api.dtos.requests.AsignarDestacamentoRol
 import com.ais.ascensobackend.seguridad.api.dtos.requests.CrearUsuarioRequest;
 import com.ais.ascensobackend.seguridad.api.dtos.responses.RestablecerPasswordResponse;
 import com.ais.ascensobackend.seguridad.api.dtos.responses.UsuarioDestacamentoResponse;
+import com.ais.ascensobackend.seguridad.api.dtos.responses.UsuarioNombreResponse;
 import com.ais.ascensobackend.seguridad.api.dtos.responses.UsuarioResponse;
 import com.ais.ascensobackend.seguridad.api.mappers.UsuarioApiMapper;
 import com.ais.ascensobackend.seguridad.application.services.interfaces.UsuarioService;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -41,6 +43,21 @@ public class UsuarioController {
         UsuarioResponse creado = mapper.toResponse(usuarioService.crear(
                 request.username(), request.password(), request.nombre(), request.telefono(), request.correo()));
         return ResponseEntity.status(HttpStatus.CREATED).body(creado);
+    }
+
+    /**
+     * Autoservicio: cualquier usuario autenticado resuelve solo el nombre (nada más)
+     * de un conjunto de usuarios, sin requerir {@code USUARIOS_VER} — usado por
+     * ejemplo para mostrar nombres reales en la gestión de {@code nino_padre}, donde
+     * quien administra el vínculo (vía NINOS_EDITAR) no tiene acceso al listado
+     * completo de usuarios.
+     */
+    @GetMapping("/resolver-nombres")
+    public ResponseEntity<List<UsuarioNombreResponse>> resolverNombres(@RequestParam List<Long> ids) {
+        List<UsuarioNombreResponse> nombres = usuarioService.listarNombres(ids).stream()
+                .map(mapper::toResponse)
+                .toList();
+        return ResponseEntity.ok(nombres);
     }
 
     @PostMapping("/{usuarioId}/destacamentos")

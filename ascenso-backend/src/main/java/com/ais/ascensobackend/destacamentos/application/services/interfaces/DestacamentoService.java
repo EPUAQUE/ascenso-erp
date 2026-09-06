@@ -2,6 +2,7 @@ package com.ais.ascensobackend.destacamentos.application.services.interfaces;
 
 import com.ais.ascensobackend.destacamentos.application.dtos.DestacamentoResumen;
 import com.ais.ascensobackend.destacamentos.domain.model.ModoCorteAnio;
+import java.util.Collection;
 import java.util.List;
 
 public interface DestacamentoService {
@@ -19,4 +20,7 @@ public interface DestacamentoService {
     void desactivar(Long id);
 
     List<DestacamentoResumen> listar();
+
+    /** Resuelve solo los destacamentos cuyo id está en {@code ids} (ignora los que no existan). */
+    List<DestacamentoResumen> listarPorIds(Collection<Long> ids);
 }

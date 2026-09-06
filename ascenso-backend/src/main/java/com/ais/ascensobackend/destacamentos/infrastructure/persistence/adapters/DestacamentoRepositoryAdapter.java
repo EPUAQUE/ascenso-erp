@@ -6,6 +6,7 @@ import com.ais.ascensobackend.destacamentos.infrastructure.persistence.entities.
 import com.ais.ascensobackend.destacamentos.infrastructure.persistence.mappers.DestacamentoEntityMapper;
 import com.ais.ascensobackend.destacamentos.infrastructure.persistence.repositories.DestacamentoJpaRepository;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
@@ -47,5 +48,10 @@ public class DestacamentoRepositoryAdapter implements DestacamentoRepository {
     @Override
     public List<Destacamento> findAll() {
         return jpaRepository.findAll().stream().map(mapper::toDomain).toList();
+    }
+
+    @Override
+    public List<Destacamento> findAllById(Collection<Long> ids) {
+        return jpaRepository.findAllById(ids).stream().map(mapper::toDomain).toList();
     }
 }

@@ -1,6 +1,7 @@
 import { apiClient } from '@/services/http/ApiClient'
 import { API_ENDPOINTS } from '@/config/endpoints'
 import type { LoginResponse, MeResponse } from '@/types/auth'
+import type { Destacamento } from '@/types/destacamentos'
 
 class AuthService {
   login(username: string, password: string) {
@@ -13,6 +14,10 @@ class AuthService {
 
   me() {
     return apiClient.get<MeResponse>(API_ENDPOINTS.auth.me)
+  }
+
+  misDestacamentos() {
+    return apiClient.get<Destacamento[]>(API_ENDPOINTS.auth.misDestacamentos)
   }
 
   logout() {

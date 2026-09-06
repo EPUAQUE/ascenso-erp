@@ -7,6 +7,7 @@ import com.ais.ascensobackend.destacamentos.domain.model.Destacamento;
 import com.ais.ascensobackend.destacamentos.domain.model.ModoCorteAnio;
 import com.ais.ascensobackend.destacamentos.domain.repository.DestacamentoRepository;
 import com.ais.ascensobackend.shared.exceptions.ResourceNotFoundException;
+import java.util.Collection;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,6 +66,11 @@ public class DestacamentoServiceImpl implements DestacamentoService {
     @Override
     public List<DestacamentoResumen> listar() {
         return destacamentoRepository.findAll().stream().map(this::toResumen).toList();
+    }
+
+    @Override
+    public List<DestacamentoResumen> listarPorIds(Collection<Long> ids) {
+        return destacamentoRepository.findAllById(ids).stream().map(this::toResumen).toList();
     }
 
     private Destacamento obtenerORequerido(Long id) {

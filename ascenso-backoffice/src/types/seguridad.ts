@@ -38,3 +38,8 @@ export interface Rol {
   nombre: string
   alcanceGlobal: boolean
 }
+
+export interface UsuarioNombre {
+  id: number
+  nombre: string
+}
