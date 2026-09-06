@@ -2,12 +2,15 @@
 import { computed, ref, watch } from 'vue'
 import ModalDialog from '@/components/common/ModalDialog.vue'
 import ActionIcon from '@/components/common/ActionIcon.vue'
+import PaginacionTabla from '@/components/common/PaginacionTabla.vue'
 import { usePermissionsStore } from '@/stores/permissions.store'
 import { anioProgramaService } from '@/services/catalogo/AnioProgramaService'
 import { ApiClientError } from '@/services/http/ApiClient'
-import type { AnioPrograma, Grupo, Medalla } from '@/types/catalogo'
+import type { AnioPrograma, Medalla } from '@/types/catalogo'
 
-const props = defineProps<{ grupos: Grupo[] }>()
+const PAGE_SIZE = 10
+
+const props = defineProps<{ grupoId: number }>()
 
 const permissions = usePermissionsStore()
 const puedeEditar = computed(() => permissions.can('CATALOGO_EDITAR'))
@@ -15,17 +18,20 @@ const puedeEditar = computed(() => permissions.can('CATALOGO_EDITAR'))
 const anios = ref<AnioPrograma[]>([])
 const cargando = ref(false)
 const errorMessage = ref<string | null>(null)
-const filtroGrupoId = ref<number | null>(null)
+const pagina = ref(1)
 
-function nombreGrupo(id: number): string {
-  return props.grupos.find((g) => g.id === id)?.nombre ?? `Grupo #${id}`
-}
+const totalPaginas = computed(() => Math.max(1, Math.ceil(anios.value.length / PAGE_SIZE)))
+const aniosPagina = computed(() => {
+  const inicio = (pagina.value - 1) * PAGE_SIZE
+  return anios.value.slice(inicio, inicio + PAGE_SIZE)
+})
 
 async function cargar() {
   cargando.value = true
   errorMessage.value = null
+  pagina.value = 1
   try {
-    anios.value = await anioProgramaService.listar(filtroGrupoId.value ?? undefined)
+    anios.value = await anioProgramaService.listar(props.grupoId)
   } catch (error) {
     errorMessage.value =
       error instanceof ApiClientError ? error.message : 'No se pudo cargar los años de programa.'
@@ -34,12 +40,11 @@ async function cargar() {
   }
 }
 
-watch(filtroGrupoId, cargar)
+watch(() => props.grupoId, cargar)
 cargar()
 
 const formOpen = ref(false)
 const anioEnEdicion = ref<AnioPrograma | null>(null)
-const grupoId = ref<number | null>(null)
 const numero = ref(1)
 const medalla = ref<Medalla | ''>('')
 const minimoLibros = ref(0)
@@ -51,7 +56,6 @@ const formError = ref<string | null>(null)
 
 function abrirCrear() {
   anioEnEdicion.value = null
-  grupoId.value = filtroGrupoId.value ?? props.grupos[0]?.id ?? null
   numero.value = 1
   medalla.value = ''
   minimoLibros.value = 0
@@ -64,7 +68,6 @@ function abrirCrear() {
 
 function abrirEditar(a: AnioPrograma) {
   anioEnEdicion.value = a
-  grupoId.value = a.grupoId
   numero.value = a.numero
   medalla.value = a.medalla ?? ''
   minimoLibros.value = a.minimoLibros
@@ -76,11 +79,11 @@ function abrirEditar(a: AnioPrograma) {
 }
 
 async function onSubmit() {
-  if (guardando.value || !grupoId.value) return
+  if (guardando.value) return
   guardando.value = true
   formError.value = null
   const request = {
-    grupoId: grupoId.value,
+    grupoId: props.grupoId,
     numero: numero.value,
     medalla: medalla.value || null,
     minimoLibros: minimoLibros.value,
@@ -109,18 +112,7 @@ async function onSubmit() {
 
 <template>
   <div class="space-y-4">
-    <div class="flex flex-wrap items-center justify-between gap-3">
-      <label class="flex items-center gap-2 text-sm">
-        <span class="text-mk-text-muted">Grupo</span>
-        <select
-          v-model.number="filtroGrupoId"
-          class="mk-input rounded-md border border-mk-border px-2 py-1.5 text-sm"
-        >
-          <option :value="null">Todos</option>
-          <option v-for="g in grupos" :key="g.id" :value="g.id">{{ g.nombre }}</option>
-        </select>
-      </label>
-
+    <div class="flex justify-end">
       <button v-if="puedeEditar" type="button" class="mk-btn mk-btn-primary" @click="abrirCrear">
         <ActionIcon name="plus" class="h-4 w-4" />
         Nuevo año de programa
@@ -141,7 +133,6 @@ async function onSubmit() {
           <tr
             class="border-b border-mk-border text-xs font-semibold uppercase tracking-wider text-mk-text-muted"
           >
-            <th class="px-4 py-3">Grupo</th>
             <th class="px-4 py-3">Número</th>
             <th class="px-4 py-3">Medalla</th>
             <th class="px-4 py-3">Mín. libros</th>
@@ -153,15 +144,14 @@ async function onSubmit() {
         </thead>
         <tbody class="divide-y divide-mk-border">
           <tr v-if="cargando">
-            <td colspan="8" class="px-4 py-6 text-center text-mk-text-muted">Cargando…</td>
+            <td colspan="7" class="px-4 py-6 text-center text-mk-text-muted">Cargando…</td>
           </tr>
           <tr v-else-if="anios.length === 0">
-            <td colspan="8" class="px-4 py-6 text-center text-mk-text-muted">
+            <td colspan="7" class="px-4 py-6 text-center text-mk-text-muted">
               No hay años de programa para mostrar.
             </td>
           </tr>
-          <tr v-for="a in anios" v-else :key="a.id">
-            <td class="px-4 py-2.5 text-mk-text-muted">{{ nombreGrupo(a.grupoId) }}</td>
+          <tr v-for="a in aniosPagina" v-else :key="a.id">
             <td class="mk-num px-4 py-2.5 font-medium text-mk-text">{{ a.numero }}</td>
             <td class="px-4 py-2.5 text-mk-text-muted">{{ a.medalla ?? '—' }}</td>
             <td class="mk-num px-4 py-2.5 text-mk-text-muted">{{ a.minimoLibros }}</td>
@@ -180,6 +170,10 @@ async function onSubmit() {
       </table>
     </div>
 
+    <div v-if="totalPaginas > 1" class="flex justify-end">
+      <PaginacionTabla v-model:pagina="pagina" :total-paginas="totalPaginas" />
+    </div>
+
     <ModalDialog
       v-model="formOpen"
       :title="anioEnEdicion ? 'Editar año de programa' : 'Nuevo año de programa'"
@@ -192,17 +186,6 @@ async function onSubmit() {
         >
           {{ formError }}
         </p>
-
-        <div>
-          <label class="mb-1 block text-sm font-medium text-mk-text">Grupo</label>
-          <select
-            v-model.number="grupoId"
-            :disabled="anioEnEdicion !== null"
-            class="mk-input w-full rounded-md border border-mk-border px-3 py-2 text-sm disabled:opacity-60"
-          >
-            <option v-for="g in grupos" :key="g.id" :value="g.id">{{ g.nombre }}</option>
-          </select>
-        </div>
 
         <div class="grid grid-cols-2 gap-4">
           <div>

@@ -7,6 +7,10 @@ class GrupoService {
     return apiClient.get<Grupo[]>(API_ENDPOINTS.catalogo.grupos)
   }
 
+  obtener(id: number) {
+    return apiClient.get<Grupo>(API_ENDPOINTS.catalogo.grupoPorId(id))
+  }
+
   actualizar(id: number, request: ActualizarGrupoRequest) {
     return apiClient.put<Grupo>(API_ENDPOINTS.catalogo.grupoPorId(id), request)
   }

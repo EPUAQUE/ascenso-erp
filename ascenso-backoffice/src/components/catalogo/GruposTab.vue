@@ -88,8 +88,21 @@ async function onSubmit() {
             <td class="mk-num px-4 py-2.5 text-mk-text-muted">{{ g.edadMin }}–{{ g.edadMax }} años</td>
             <td class="px-4 py-2.5 text-mk-text-muted">{{ g.descripcion ?? '—' }}</td>
             <td class="px-4 py-2.5">
-              <div v-if="puedeEditar" class="mk-row-actions justify-end">
-                <button type="button" class="mk-row-btn" title="Editar" @click="abrirEditar(g)">
+              <div class="mk-row-actions justify-end">
+                <RouterLink
+                  :to="{ name: 'catalogo-grupo-anios', params: { grupoId: g.id } }"
+                  class="mk-row-btn mk-row-btn-neutral"
+                  title="Ver años, libros, destrezas, liderazgo y pasos"
+                >
+                  <ActionIcon name="eye" />
+                </RouterLink>
+                <button
+                  v-if="puedeEditar"
+                  type="button"
+                  class="mk-row-btn"
+                  title="Editar"
+                  @click="abrirEditar(g)"
+                >
                   <ActionIcon name="edit" />
                 </button>
               </div>

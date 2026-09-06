@@ -3,12 +3,15 @@ import { computed, ref, watch } from 'vue'
 import ModalDialog from '@/components/common/ModalDialog.vue'
 import EstadoBadge from '@/components/common/EstadoBadge.vue'
 import ActionIcon from '@/components/common/ActionIcon.vue'
+import PaginacionTabla from '@/components/common/PaginacionTabla.vue'
 import { usePermissionsStore } from '@/stores/permissions.store'
 import { libroBiblicoService } from '@/services/catalogo/LibroBiblicoService'
 import { ApiClientError } from '@/services/http/ApiClient'
-import type { Grupo, LibroBiblico } from '@/types/catalogo'
+import type { LibroBiblico } from '@/types/catalogo'
 
-const props = defineProps<{ grupos: Grupo[] }>()
+const PAGE_SIZE = 10
+
+const props = defineProps<{ grupoId: number }>()
 
 const permissions = usePermissionsStore()
 const puedeEditar = computed(() => permissions.can('CATALOGO_EDITAR'))
@@ -16,17 +19,33 @@ const puedeEditar = computed(() => permissions.can('CATALOGO_EDITAR'))
 const libros = ref<LibroBiblico[]>([])
 const cargando = ref(false)
 const errorMessage = ref<string | null>(null)
-const filtroGrupoId = ref<number | null>(null)
+const filtroEstado = ref<'todos' | 'activos' | 'inactivos'>('activos')
+const pagina = ref(1)
 
-function nombreGrupo(id: number): string {
-  return props.grupos.find((g) => g.id === id)?.nombre ?? `Grupo #${id}`
-}
+const librosFiltrados = computed(() =>
+  libros.value.filter((l) => {
+    if (filtroEstado.value === 'activos' && !l.activo) return false
+    if (filtroEstado.value === 'inactivos' && l.activo) return false
+    return true
+  }),
+)
+
+const totalPaginas = computed(() => Math.max(1, Math.ceil(librosFiltrados.value.length / PAGE_SIZE)))
+const librosPagina = computed(() => {
+  const inicio = (pagina.value - 1) * PAGE_SIZE
+  return librosFiltrados.value.slice(inicio, inicio + PAGE_SIZE)
+})
+
+watch(filtroEstado, () => {
+  pagina.value = 1
+})
 
 async function cargar() {
   cargando.value = true
   errorMessage.value = null
+  pagina.value = 1
   try {
-    libros.value = await libroBiblicoService.listar(filtroGrupoId.value ?? undefined)
+    libros.value = await libroBiblicoService.listar(props.grupoId)
   } catch (error) {
     errorMessage.value =
       error instanceof ApiClientError ? error.message : 'No se pudo cargar los libros bíblicos.'
@@ -35,12 +54,11 @@ async function cargar() {
   }
 }
 
-watch(filtroGrupoId, cargar)
+watch(() => props.grupoId, cargar)
 cargar()
 
 const formOpen = ref(false)
 const libroEnEdicion = ref<LibroBiblico | null>(null)
-const grupoId = ref<number | null>(null)
 const titulo = ref('')
 const ordenSugerido = ref<number | null>(null)
 const guardando = ref(false)
@@ -48,7 +66,6 @@ const formError = ref<string | null>(null)
 
 function abrirCrear() {
   libroEnEdicion.value = null
-  grupoId.value = filtroGrupoId.value ?? props.grupos[0]?.id ?? null
   titulo.value = ''
   ordenSugerido.value = null
   formError.value = null
@@ -57,7 +74,6 @@ function abrirCrear() {
 
 function abrirEditar(l: LibroBiblico) {
   libroEnEdicion.value = l
-  grupoId.value = l.grupoId
   titulo.value = l.titulo
   ordenSugerido.value = l.ordenSugerido
   formError.value = null
@@ -65,13 +81,13 @@ function abrirEditar(l: LibroBiblico) {
 }
 
 async function onSubmit() {
-  if (guardando.value || !grupoId.value || !titulo.value.trim()) {
+  if (guardando.value || !titulo.value.trim()) {
     formError.value = 'Completa los campos requeridos.'
     return
   }
   guardando.value = true
   formError.value = null
-  const request = { grupoId: grupoId.value, titulo: titulo.value.trim(), ordenSugerido: ordenSugerido.value }
+  const request = { grupoId: props.grupoId, titulo: titulo.value.trim(), ordenSugerido: ordenSugerido.value }
   try {
     if (libroEnEdicion.value) {
       const actualizado = await libroBiblicoService.actualizar(libroEnEdicion.value.id, request)
@@ -107,16 +123,11 @@ async function onToggleActivo(l: LibroBiblico) {
 <template>
   <div class="space-y-4">
     <div class="flex flex-wrap items-center justify-between gap-3">
-      <label class="flex items-center gap-2 text-sm">
-        <span class="text-mk-text-muted">Grupo</span>
-        <select
-          v-model.number="filtroGrupoId"
-          class="mk-input rounded-md border border-mk-border px-2 py-1.5 text-sm"
-        >
-          <option :value="null">Todos</option>
-          <option v-for="g in grupos" :key="g.id" :value="g.id">{{ g.nombre }}</option>
-        </select>
-      </label>
+      <select v-model="filtroEstado" class="mk-input rounded-md border border-mk-border px-2 py-1.5 text-sm">
+        <option value="activos">Activos</option>
+        <option value="inactivos">Inactivos</option>
+        <option value="todos">Todos</option>
+      </select>
 
       <button v-if="puedeEditar" type="button" class="mk-btn mk-btn-primary" @click="abrirCrear">
         <ActionIcon name="plus" class="h-4 w-4" />
@@ -140,24 +151,22 @@ async function onToggleActivo(l: LibroBiblico) {
           >
             <th class="px-4 py-3">Título</th>
             <th class="px-4 py-3">Orden sugerido</th>
-            <th class="px-4 py-3">Grupo</th>
             <th class="px-4 py-3">Estado</th>
             <th class="px-4 py-3 text-right">Acciones</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-mk-border">
           <tr v-if="cargando">
-            <td colspan="5" class="px-4 py-6 text-center text-mk-text-muted">Cargando…</td>
+            <td colspan="4" class="px-4 py-6 text-center text-mk-text-muted">Cargando…</td>
           </tr>
-          <tr v-else-if="libros.length === 0">
-            <td colspan="5" class="px-4 py-6 text-center text-mk-text-muted">
+          <tr v-else-if="librosPagina.length === 0">
+            <td colspan="4" class="px-4 py-6 text-center text-mk-text-muted">
               No hay libros bíblicos para mostrar.
             </td>
           </tr>
-          <tr v-for="l in libros" v-else :key="l.id">
+          <tr v-for="l in librosPagina" v-else :key="l.id">
             <td class="px-4 py-2.5 font-medium text-mk-text">{{ l.titulo }}</td>
             <td class="mk-num px-4 py-2.5 text-mk-text-muted">{{ l.ordenSugerido ?? '—' }}</td>
-            <td class="px-4 py-2.5 text-mk-text-muted">{{ nombreGrupo(l.grupoId) }}</td>
             <td class="px-4 py-2.5">
               <EstadoBadge
                 :variant="l.activo ? 'success' : 'neutral'"
@@ -185,6 +194,10 @@ async function onToggleActivo(l: LibroBiblico) {
       </table>
     </div>
 
+    <div v-if="totalPaginas > 1" class="flex justify-end">
+      <PaginacionTabla v-model:pagina="pagina" :total-paginas="totalPaginas" />
+    </div>
+
     <ModalDialog v-model="formOpen" :title="libroEnEdicion ? 'Editar libro bíblico' : 'Nuevo libro bíblico'">
       <form class="space-y-4" @submit.prevent="onSubmit">
         <p
@@ -194,16 +207,6 @@ async function onToggleActivo(l: LibroBiblico) {
         >
           {{ formError }}
         </p>
-
-        <div>
-          <label class="mb-1 block text-sm font-medium text-mk-text">Grupo</label>
-          <select
-            v-model.number="grupoId"
-            class="mk-input w-full rounded-md border border-mk-border px-3 py-2 text-sm"
-          >
-            <option v-for="g in grupos" :key="g.id" :value="g.id">{{ g.nombre }}</option>
-          </select>
-        </div>
 
         <div>
           <label class="mb-1 block text-sm font-medium text-mk-text">Título</label>

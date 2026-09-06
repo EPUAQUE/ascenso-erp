@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import ModalDialog from '@/components/common/ModalDialog.vue'
 import EstadoBadge from '@/components/common/EstadoBadge.vue'
 import ActionIcon from '@/components/common/ActionIcon.vue'
+import PaginacionTabla from '@/components/common/PaginacionTabla.vue'
 import { usePermissionsStore } from '@/stores/permissions.store'
 import { reglaAsistenciaService } from '@/services/catalogo/ReglaAsistenciaService'
 import { ApiClientError } from '@/services/http/ApiClient'
 import type { ReglaAsistencia, UnidadAsistencia } from '@/types/catalogo'
+
+const PAGE_SIZE = 10
 
 const permissions = usePermissionsStore()
 const puedeEditar = computed(() => permissions.can('CATALOGO_EDITAR'))
@@ -14,6 +17,8 @@ const puedeEditar = computed(() => permissions.can('CATALOGO_EDITAR'))
 const reglas = ref<ReglaAsistencia[]>([])
 const cargando = ref(false)
 const errorMessage = ref<string | null>(null)
+const filtroEstado = ref<'todas' | 'vigente' | 'historicas'>('todas')
+const pagina = ref(1)
 
 const reglasOrdenadas = computed(() =>
   [...reglas.value].sort((a, b) => b.vigenteDesde.localeCompare(a.vigenteDesde)),
@@ -24,6 +29,24 @@ const reglasOrdenadas = computed(() =>
 const idVigente = computed(() => {
   const hoy = new Date().toISOString().slice(0, 10)
   return reglasOrdenadas.value.find((r) => r.vigenteDesde <= hoy)?.id ?? null
+})
+
+const reglasFiltradas = computed(() =>
+  reglasOrdenadas.value.filter((r) => {
+    if (filtroEstado.value === 'vigente') return r.id === idVigente.value
+    if (filtroEstado.value === 'historicas') return r.id !== idVigente.value
+    return true
+  }),
+)
+
+const totalPaginas = computed(() => Math.max(1, Math.ceil(reglasFiltradas.value.length / PAGE_SIZE)))
+const reglasPagina = computed(() => {
+  const inicio = (pagina.value - 1) * PAGE_SIZE
+  return reglasFiltradas.value.slice(inicio, inicio + PAGE_SIZE)
+})
+
+watch(filtroEstado, () => {
+  pagina.value = 1
 })
 
 async function cargar() {
@@ -101,9 +124,20 @@ async function onSubmit() {
 <template>
   <div class="space-y-4">
     <div class="flex flex-wrap items-center justify-between gap-3">
-      <p class="text-sm text-mk-text-muted">
-        Histórico — la vigente es la de fecha más reciente que ya inició.
-      </p>
+      <div class="flex flex-wrap items-center gap-3">
+        <p class="text-sm text-mk-text-muted">
+          Histórico — la vigente es la de fecha más reciente que ya inició.
+        </p>
+
+        <select
+          v-model="filtroEstado"
+          class="mk-input rounded-md border border-mk-border px-2 py-1.5 text-sm"
+        >
+          <option value="todas">Todas</option>
+          <option value="vigente">Vigente</option>
+          <option value="historicas">Históricas</option>
+        </select>
+      </div>
 
       <button v-if="puedeEditar" type="button" class="mk-btn mk-btn-primary" @click="abrirCrear">
         <ActionIcon name="plus" class="h-4 w-4" />
@@ -136,12 +170,12 @@ async function onSubmit() {
           <tr v-if="cargando">
             <td colspan="5" class="px-4 py-6 text-center text-mk-text-muted">Cargando…</td>
           </tr>
-          <tr v-else-if="reglasOrdenadas.length === 0">
+          <tr v-else-if="reglasPagina.length === 0">
             <td colspan="5" class="px-4 py-6 text-center text-mk-text-muted">
               No hay reglas de asistencia para mostrar.
             </td>
           </tr>
-          <tr v-for="r in reglasOrdenadas" v-else :key="r.id">
+          <tr v-for="r in reglasPagina" v-else :key="r.id">
             <td class="px-4 py-2.5 font-medium text-mk-text">{{ r.vigenteDesde }}</td>
             <td class="px-4 py-2.5 text-mk-text-muted">{{ r.unidad }}</td>
             <td class="mk-num px-4 py-2.5 text-mk-text-muted">
@@ -161,6 +195,10 @@ async function onSubmit() {
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <div v-if="totalPaginas > 1" class="flex justify-end">
+      <PaginacionTabla v-model:pagina="pagina" :total-paginas="totalPaginas" />
     </div>
 
     <ModalDialog

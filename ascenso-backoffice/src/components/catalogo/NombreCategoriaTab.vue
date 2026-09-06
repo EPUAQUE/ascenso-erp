@@ -3,9 +3,11 @@ import { computed, ref, watch } from 'vue'
 import ModalDialog from '@/components/common/ModalDialog.vue'
 import EstadoBadge from '@/components/common/EstadoBadge.vue'
 import ActionIcon from '@/components/common/ActionIcon.vue'
+import PaginacionTabla from '@/components/common/PaginacionTabla.vue'
 import { usePermissionsStore } from '@/stores/permissions.store'
 import { ApiClientError } from '@/services/http/ApiClient'
-import type { Grupo } from '@/types/catalogo'
+
+const PAGE_SIZE = 10
 
 interface Item {
   id: number
@@ -24,7 +26,7 @@ interface Request {
 const props = defineProps<{
   entidadLabel: string
   campoCategoriaLabel: string
-  grupos: Grupo[]
+  grupoId: number
   listar: (grupoId?: number) => Promise<Item[]>
   crear: (request: Request) => Promise<Item>
   actualizar: (id: number, request: Request) => Promise<Item>
@@ -38,25 +40,40 @@ const puedeEditar = computed(() => permissions.can('CATALOGO_EDITAR'))
 const items = ref<Item[]>([])
 const cargando = ref(false)
 const errorMessage = ref<string | null>(null)
-const filtroGrupoId = ref<number | null>(null)
+const filtroEstado = ref<'todos' | 'activos' | 'inactivos'>('activos')
+const pagina = ref(1)
+
+const itemsFiltrados = computed(() =>
+  items.value.filter((item) => {
+    if (filtroEstado.value === 'activos' && !item.activo) return false
+    if (filtroEstado.value === 'inactivos' && item.activo) return false
+    return true
+  }),
+)
+
+const totalPaginas = computed(() => Math.max(1, Math.ceil(itemsFiltrados.value.length / PAGE_SIZE)))
+const itemsPagina = computed(() => {
+  const inicio = (pagina.value - 1) * PAGE_SIZE
+  return itemsFiltrados.value.slice(inicio, inicio + PAGE_SIZE)
+})
+
+watch(filtroEstado, () => {
+  pagina.value = 1
+})
 
 const formOpen = ref(false)
 const itemEnEdicion = ref<Item | null>(null)
-const grupoId = ref<number | null>(null)
 const nombre = ref('')
 const categoria = ref('')
 const guardando = ref(false)
 const formError = ref<string | null>(null)
 
-function nombreGrupo(id: number): string {
-  return props.grupos.find((g) => g.id === id)?.nombre ?? `Grupo #${id}`
-}
-
 async function cargar() {
   cargando.value = true
   errorMessage.value = null
+  pagina.value = 1
   try {
-    items.value = await props.listar(filtroGrupoId.value ?? undefined)
+    items.value = await props.listar(props.grupoId)
   } catch (error) {
     errorMessage.value =
       error instanceof ApiClientError
@@ -67,12 +84,11 @@ async function cargar() {
   }
 }
 
-watch(filtroGrupoId, cargar)
+watch(() => props.grupoId, cargar)
 cargar()
 
 function abrirCrear() {
   itemEnEdicion.value = null
-  grupoId.value = props.grupos[0]?.id ?? null
   nombre.value = ''
   categoria.value = ''
   formError.value = null
@@ -81,7 +97,6 @@ function abrirCrear() {
 
 function abrirEditar(item: Item) {
   itemEnEdicion.value = item
-  grupoId.value = item.grupoId
   nombre.value = item.nombre
   categoria.value = item.categoria ?? ''
   formError.value = null
@@ -89,14 +104,14 @@ function abrirEditar(item: Item) {
 }
 
 async function onSubmit() {
-  if (guardando.value || !grupoId.value || !nombre.value.trim()) {
+  if (guardando.value || !nombre.value.trim()) {
     formError.value = 'Completa los campos requeridos.'
     return
   }
   guardando.value = true
   formError.value = null
   const request: Request = {
-    grupoId: grupoId.value,
+    grupoId: props.grupoId,
     nombre: nombre.value.trim(),
     categoria: categoria.value.trim() || null,
   }
@@ -135,16 +150,11 @@ async function onToggleActivo(item: Item) {
 <template>
   <div class="space-y-4">
     <div class="flex flex-wrap items-center justify-between gap-3">
-      <label class="flex items-center gap-2 text-sm">
-        <span class="text-mk-text-muted">Grupo</span>
-        <select
-          v-model.number="filtroGrupoId"
-          class="mk-input rounded-md border border-mk-border px-2 py-1.5 text-sm"
-        >
-          <option :value="null">Todos</option>
-          <option v-for="g in grupos" :key="g.id" :value="g.id">{{ g.nombre }}</option>
-        </select>
-      </label>
+      <select v-model="filtroEstado" class="mk-input rounded-md border border-mk-border px-2 py-1.5 text-sm">
+        <option value="activos">Activos</option>
+        <option value="inactivos">Inactivos</option>
+        <option value="todos">Todos</option>
+      </select>
 
       <button v-if="puedeEditar" type="button" class="mk-btn mk-btn-primary" @click="abrirCrear">
         <ActionIcon name="plus" class="h-4 w-4" />
@@ -168,24 +178,22 @@ async function onToggleActivo(item: Item) {
           >
             <th class="px-4 py-3">Nombre</th>
             <th class="px-4 py-3">{{ campoCategoriaLabel }}</th>
-            <th class="px-4 py-3">Grupo</th>
             <th class="px-4 py-3">Estado</th>
             <th class="px-4 py-3 text-right">Acciones</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-mk-border">
           <tr v-if="cargando">
-            <td colspan="5" class="px-4 py-6 text-center text-mk-text-muted">Cargando…</td>
+            <td colspan="4" class="px-4 py-6 text-center text-mk-text-muted">Cargando…</td>
           </tr>
-          <tr v-else-if="items.length === 0">
-            <td colspan="5" class="px-4 py-6 text-center text-mk-text-muted">
+          <tr v-else-if="itemsPagina.length === 0">
+            <td colspan="4" class="px-4 py-6 text-center text-mk-text-muted">
               No hay {{ entidadLabel.toLowerCase() }}s para mostrar.
             </td>
           </tr>
-          <tr v-for="item in items" v-else :key="item.id">
+          <tr v-for="item in itemsPagina" v-else :key="item.id">
             <td class="px-4 py-2.5 font-medium text-mk-text">{{ item.nombre }}</td>
             <td class="px-4 py-2.5 text-mk-text-muted">{{ item.categoria ?? '—' }}</td>
-            <td class="px-4 py-2.5 text-mk-text-muted">{{ nombreGrupo(item.grupoId) }}</td>
             <td class="px-4 py-2.5">
               <EstadoBadge
                 :variant="item.activo ? 'success' : 'neutral'"
@@ -213,6 +221,10 @@ async function onToggleActivo(item: Item) {
       </table>
     </div>
 
+    <div v-if="totalPaginas > 1" class="flex justify-end">
+      <PaginacionTabla v-model:pagina="pagina" :total-paginas="totalPaginas" />
+    </div>
+
     <ModalDialog
       v-model="formOpen"
       :title="itemEnEdicion ? `Editar ${entidadLabel.toLowerCase()}` : `Nuevo ${entidadLabel.toLowerCase()}`"
@@ -225,16 +237,6 @@ async function onToggleActivo(item: Item) {
         >
           {{ formError }}
         </p>
-
-        <div>
-          <label class="mb-1 block text-sm font-medium text-mk-text">Grupo</label>
-          <select
-            v-model.number="grupoId"
-            class="mk-input w-full rounded-md border border-mk-border px-3 py-2 text-sm"
-          >
-            <option v-for="g in grupos" :key="g.id" :value="g.id">{{ g.nombre }}</option>
-          </select>
-        </div>
 
         <div>
           <label class="mb-1 block text-sm font-medium text-mk-text">Nombre</label>
