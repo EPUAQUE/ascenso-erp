@@ -42,6 +42,10 @@ const navGroups: NavGroup[] = [
       { label: 'Anuncios', path: '/anuncios', icon: 'anuncios' },
     ],
   },
+  {
+    label: 'Administración',
+    items: [{ label: 'Usuarios y accesos', path: '/usuarios', icon: 'usuarios' }],
+  },
 ]
 
 const visibleGroups = computed(() => navGroups)

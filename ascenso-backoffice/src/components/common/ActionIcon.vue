@@ -53,5 +53,9 @@ defineProps<{ name: string }>()
     <template v-else-if="name === 'arrow-up'">
       <path d="M12 19V5M5 12l7-7 7 7" />
     </template>
+    <template v-else-if="name === 'lock'">
+      <rect x="4" y="11" width="16" height="9" rx="1.5" />
+      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+    </template>
   </svg>
 </template>

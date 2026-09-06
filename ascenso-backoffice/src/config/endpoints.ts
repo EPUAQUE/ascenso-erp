@@ -9,6 +9,12 @@ export const API_ENDPOINTS = {
   },
   usuarios: {
     base: '/api/v1/usuarios',
+    destacamentos: (id: number) => `/api/v1/usuarios/${id}/destacamentos`,
+    restablecerPassword: (id: number) => `/api/v1/usuarios/${id}/password/restablecer`,
+    revocarSesiones: (id: number) => `/api/v1/usuarios/${id}/sesiones/revocar`,
+    desactivar: (id: number) => `/api/v1/usuarios/${id}/desactivar`,
+    bloquear: (id: number) => `/api/v1/usuarios/${id}/bloquear`,
+    activar: (id: number) => `/api/v1/usuarios/${id}/activar`,
   },
   roles: {
     base: '/api/v1/roles',

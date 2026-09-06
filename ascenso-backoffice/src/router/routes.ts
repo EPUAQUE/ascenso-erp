@@ -131,6 +131,19 @@ export const routes: RouteRecordRaw[] = [
         component: () => import('@/views/admin/AnunciosView.vue'),
         meta: { requiresAuth: true, title: 'Anuncios', permission: 'ANUNCIOS_VER' },
       },
+      {
+        path: 'usuarios',
+        name: 'usuarios',
+        component: () => import('@/views/admin/UsuariosView.vue'),
+        meta: { requiresAuth: true, title: 'Usuarios y accesos', permission: 'USUARIOS_VER' },
+      },
+      {
+        path: 'usuarios/:id',
+        name: 'usuario-detalle',
+        component: () => import('@/views/admin/UsuarioDetalleView.vue'),
+        props: (route) => ({ id: Number(route.params.id) }),
+        meta: { requiresAuth: true, title: 'Ficha del usuario', permission: 'USUARIOS_VER' },
+      },
     ],
   },
   {

@@ -44,6 +44,12 @@ defineProps<{ name: string }>()
       <circle cx="12" cy="12" r="9" />
       <path d="M12 3v18M3 12h18" />
     </template>
+    <template v-else-if="name === 'usuarios'">
+      <circle cx="9" cy="8" r="3" />
+      <path d="M3 20a6 6 0 0 1 12 0" />
+      <circle cx="17" cy="9" r="2.3" />
+      <path d="M15.5 12.2a4.7 4.7 0 0 1 5.5 4.3" />
+    </template>
     <template v-else-if="name === 'dashboard'">
       <path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z" />
     </template>
