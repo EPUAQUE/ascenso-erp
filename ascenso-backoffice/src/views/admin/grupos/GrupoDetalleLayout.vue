@@ -35,7 +35,7 @@ watch(() => props.grupoId, cargar)
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div class="space-y-4 p-6">
     <RouterLink :to="{ name: 'grupos' }" class="text-sm text-mk-text-muted hover:text-mk-text">
       ← Volver a grupos
     </RouterLink>

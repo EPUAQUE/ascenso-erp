@@ -31,13 +31,15 @@ function onActualizado(grupo: Grupo) {
 </script>
 
 <template>
-  <p
-    v-if="errorMessage"
-    class="rounded-md bg-mk-danger/10 px-3 py-2 text-sm font-medium text-mk-danger"
-    role="alert"
-  >
-    {{ errorMessage }}
-  </p>
-  <p v-else-if="cargando" class="text-sm text-mk-text-muted">Cargando…</p>
-  <GruposTab v-else :grupos="grupos" @actualizado="onActualizado" />
+  <div class="space-y-4 p-6">
+    <p
+      v-if="errorMessage"
+      class="rounded-md bg-mk-danger/10 px-3 py-2 text-sm font-medium text-mk-danger"
+      role="alert"
+    >
+      {{ errorMessage }}
+    </p>
+    <p v-else-if="cargando" class="text-sm text-mk-text-muted">Cargando…</p>
+    <GruposTab v-else :grupos="grupos" @actualizado="onActualizado" />
+  </div>
 </template>

@@ -3,5 +3,7 @@ import ReglasAsistenciaTab from '@/components/catalogo/ReglasAsistenciaTab.vue'
 </script>
 
 <template>
-  <ReglasAsistenciaTab />
+  <div class="p-6">
+    <ReglasAsistenciaTab />
+  </div>
 </template>
