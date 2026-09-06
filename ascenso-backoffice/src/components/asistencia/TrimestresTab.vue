@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import ModalDialog from '@/components/common/ModalDialog.vue'
 import ActionIcon from '@/components/common/ActionIcon.vue'
 import { usePermissionsStore } from '@/stores/permissions.store'
@@ -7,15 +7,30 @@ import { trimestreService } from '@/services/ninos/TrimestreService'
 import { ApiClientError } from '@/services/http/ApiClient'
 import type { Trimestre } from '@/types/ninos'
 
-const props = defineProps<{ trimestres: Trimestre[] }>()
-const emit = defineEmits<{ (e: 'cambiado'): void }>()
-
 const permissions = usePermissionsStore()
 const puedeEditar = computed(() => permissions.can('TRIMESTRES_EDITAR'))
 
+const trimestres = ref<Trimestre[]>([])
+const cargando = ref(false)
+const errorMessage = ref<string | null>(null)
+
 const trimestresOrdenados = computed(() =>
-  [...props.trimestres].sort((a, b) => b.anioCalendario - a.anioCalendario || b.numero - a.numero),
+  [...trimestres.value].sort((a, b) => b.anioCalendario - a.anioCalendario || b.numero - a.numero),
 )
+
+async function cargar() {
+  cargando.value = true
+  errorMessage.value = null
+  try {
+    trimestres.value = await trimestreService.listar()
+  } catch (error) {
+    errorMessage.value = error instanceof ApiClientError ? error.message : 'No se pudo cargar los trimestres.'
+  } finally {
+    cargando.value = false
+  }
+}
+
+onMounted(cargar)
 
 const formOpen = ref(false)
 const trimestreEnEdicion = ref<Trimestre | null>(null)
@@ -61,11 +76,13 @@ async function onSubmit() {
   }
   try {
     if (trimestreEnEdicion.value) {
-      await trimestreService.actualizar(trimestreEnEdicion.value.id, request)
+      const actualizado = await trimestreService.actualizar(trimestreEnEdicion.value.id, request)
+      const idx = trimestres.value.findIndex((t) => t.id === actualizado.id)
+      if (idx >= 0) trimestres.value[idx] = actualizado
     } else {
-      await trimestreService.crear(request)
+      const creado = await trimestreService.crear(request)
+      trimestres.value.push(creado)
     }
-    emit('cambiado')
     formOpen.value = false
   } catch (error) {
     formError.value = error instanceof ApiClientError ? error.message : 'No se pudo guardar el trimestre.'
@@ -86,6 +103,14 @@ async function onSubmit() {
       </button>
     </div>
 
+    <p
+      v-if="errorMessage"
+      class="rounded-md bg-mk-danger/10 px-3 py-2 text-sm font-medium text-mk-danger"
+      role="alert"
+    >
+      {{ errorMessage }}
+    </p>
+
     <div class="mk-card mk-scroll-x overflow-x-auto">
       <table class="w-full text-left text-sm">
         <thead>
@@ -100,7 +125,10 @@ async function onSubmit() {
           </tr>
         </thead>
         <tbody class="divide-y divide-mk-border">
-          <tr v-if="trimestresOrdenados.length === 0">
+          <tr v-if="cargando">
+            <td colspan="5" class="px-4 py-6 text-center text-mk-text-muted">Cargando…</td>
+          </tr>
+          <tr v-else-if="trimestresOrdenados.length === 0">
             <td colspan="5" class="px-4 py-6 text-center text-mk-text-muted">
               No hay trimestres para mostrar.
             </td>

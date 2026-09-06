@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useDestacamentoStore } from '@/stores/destacamento.store'
 import { usePermissionsStore } from '@/stores/permissions.store'
 import { ninoService } from '@/services/ninos/NinoService'
 import { asistenciaService } from '@/services/ninos/AsistenciaService'
+import { trimestreService } from '@/services/ninos/TrimestreService'
 import { ApiClientError } from '@/services/http/ApiClient'
 import ActionIcon from '@/components/common/ActionIcon.vue'
 import type { Trimestre } from '@/types/ninos'
-
-const props = defineProps<{ trimestres: Trimestre[] }>()
 
 const destacamentoStore = useDestacamentoStore()
 const permissions = usePermissionsStore()
 const puedeEditar = computed(() => permissions.can('NINOS_EDITAR'))
 
+const trimestres = ref<Trimestre[]>([])
 const trimestreId = ref<number | null>(null)
 const fecha = ref(new Date().toISOString().slice(0, 10))
 
@@ -35,19 +35,22 @@ const guardandoTodo = ref(false)
 function trimestreAutomatico(): number | null {
   const hoy = new Date().toISOString().slice(0, 10)
   return (
-    props.trimestres.find((t) => t.fechaInicio <= hoy && hoy <= t.fechaFin)?.id ??
-    props.trimestres[0]?.id ??
+    trimestres.value.find((t) => t.fechaInicio <= hoy && hoy <= t.fechaFin)?.id ??
+    trimestres.value[0]?.id ??
     null
   )
 }
 
-watch(
-  () => props.trimestres,
-  () => {
+async function cargarTrimestres() {
+  try {
+    trimestres.value = await trimestreService.listar()
     if (trimestreId.value === null) trimestreId.value = trimestreAutomatico()
-  },
-  { immediate: true },
-)
+  } catch (error) {
+    errorMessage.value = error instanceof ApiClientError ? error.message : 'No se pudo cargar los trimestres.'
+  }
+}
+
+onMounted(cargarTrimestres)
 
 async function cargarRoster() {
   const destacamentoId = destacamentoStore.actualId
@@ -172,7 +175,7 @@ async function guardarTodo() {
     </div>
 
     <p v-if="!trimestreId" class="rounded-md bg-mk-pending/10 px-3 py-2 text-sm font-medium" role="alert">
-      No hay trimestres creados — crea uno en la pestaña "Trimestres" para poder registrar asistencia.
+      No hay trimestres creados — crea uno en Trimestres para poder registrar asistencia.
     </p>
 
     <p

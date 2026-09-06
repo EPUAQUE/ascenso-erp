@@ -114,10 +114,22 @@ export const routes: RouteRecordRaw[] = [
         meta: { requiresAuth: true, title: 'Asistencia', permission: 'NINOS_VER' },
       },
       {
+        path: 'trimestres',
+        name: 'trimestres',
+        component: () => import('@/views/admin/TrimestresView.vue'),
+        meta: { requiresAuth: true, title: 'Trimestres', permission: 'TRIMESTRES_VER' },
+      },
+      {
         path: 'actividades',
         name: 'actividades',
         component: () => import('@/views/admin/ActividadesView.vue'),
         meta: { requiresAuth: true, title: 'Actividades', permission: 'ACTIVIDADES_VER' },
+      },
+      {
+        path: 'anuncios',
+        name: 'anuncios',
+        component: () => import('@/views/admin/AnunciosView.vue'),
+        meta: { requiresAuth: true, title: 'Anuncios', permission: 'ANUNCIOS_VER' },
       },
     ],
   },

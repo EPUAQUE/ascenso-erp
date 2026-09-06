@@ -37,7 +37,9 @@ const navGroups: NavGroup[] = [
       { label: 'Grupos', path: '/grupos', icon: 'grupos' },
       { label: 'Reglas de asistencia', path: '/reglas-asistencia', icon: 'reglas' },
       { label: 'Asistencia', path: '/asistencia', icon: 'asistencia' },
+      { label: 'Trimestres', path: '/trimestres', icon: 'trimestres' },
       { label: 'Actividades', path: '/actividades', icon: 'actividades' },
+      { label: 'Anuncios', path: '/anuncios', icon: 'anuncios' },
     ],
   },
 ]

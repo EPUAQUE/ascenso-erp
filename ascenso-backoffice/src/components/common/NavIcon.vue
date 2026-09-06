@@ -35,6 +35,15 @@ defineProps<{ name: string }>()
       <path d="m3 12 9 5 9-5" />
       <path d="m3 17 9 5 9-5" />
     </template>
+    <template v-else-if="name === 'anuncios'">
+      <path d="M3 11v2a2 2 0 0 0 2 2h1l3 4V5L6 9H5a2 2 0 0 0-2 2Z" />
+      <path d="M14 8a4 4 0 0 1 0 8" />
+      <path d="M17 5a8 8 0 0 1 0 14" />
+    </template>
+    <template v-else-if="name === 'trimestres'">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 3v18M3 12h18" />
+    </template>
     <template v-else-if="name === 'dashboard'">
       <path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z" />
     </template>
