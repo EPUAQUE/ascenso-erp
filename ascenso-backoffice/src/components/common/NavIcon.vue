@@ -50,6 +50,10 @@ defineProps<{ name: string }>()
       <circle cx="17" cy="9" r="2.3" />
       <path d="M15.5 12.2a4.7 4.7 0 0 1 5.5 4.3" />
     </template>
+    <template v-else-if="name === 'destacamentos'">
+      <path d="M12 21s7-6.1 7-11.5A7 7 0 0 0 5 9.5C5 14.9 12 21 12 21Z" />
+      <circle cx="12" cy="9.5" r="2.3" />
+    </template>
     <template v-else-if="name === 'dashboard'">
       <path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z" />
     </template>

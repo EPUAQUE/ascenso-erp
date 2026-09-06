@@ -44,7 +44,10 @@ const navGroups: NavGroup[] = [
   },
   {
     label: 'Administración',
-    items: [{ label: 'Usuarios y accesos', path: '/usuarios', icon: 'usuarios' }],
+    items: [
+      { label: 'Usuarios', path: '/usuarios', icon: 'usuarios' },
+      { label: 'Destacamentos', path: '/destacamentos', icon: 'destacamentos' },
+    ],
   },
 ]
 
