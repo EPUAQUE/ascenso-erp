@@ -7,11 +7,11 @@ import type { Grupo } from '@/types/catalogo'
 const props = defineProps<{ grupoId: number }>()
 
 const TABS = [
-  { name: 'catalogo-grupo-anios', label: 'Años de programa' },
-  { name: 'catalogo-grupo-libros', label: 'Libros bíblicos' },
-  { name: 'catalogo-grupo-destrezas', label: 'Destrezas' },
-  { name: 'catalogo-grupo-liderazgo', label: 'Liderazgo' },
-  { name: 'catalogo-grupo-pasos', label: 'Pasos requeridos' },
+  { name: 'grupo-anios', label: 'Años de programa' },
+  { name: 'grupo-libros', label: 'Libros bíblicos' },
+  { name: 'grupo-destrezas', label: 'Destrezas' },
+  { name: 'grupo-liderazgo', label: 'Liderazgo' },
+  { name: 'grupo-pasos', label: 'Pasos requeridos' },
 ] as const
 
 const grupo = ref<Grupo | null>(null)
@@ -36,7 +36,7 @@ watch(() => props.grupoId, cargar)
 
 <template>
   <div class="space-y-4">
-    <RouterLink :to="{ name: 'catalogo-grupos' }" class="text-sm text-mk-text-muted hover:text-mk-text">
+    <RouterLink :to="{ name: 'grupos' }" class="text-sm text-mk-text-muted hover:text-mk-text">
       ← Volver a grupos
     </RouterLink>
 
