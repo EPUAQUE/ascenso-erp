@@ -7,7 +7,10 @@ import { asistenciaService } from '@/services/ninos/AsistenciaService'
 import { trimestreService } from '@/services/ninos/TrimestreService'
 import { ApiClientError } from '@/services/http/ApiClient'
 import ActionIcon from '@/components/common/ActionIcon.vue'
+import PaginacionTabla from '@/components/common/PaginacionTabla.vue'
 import type { Trimestre } from '@/types/ninos'
+
+const PAGE_SIZE = 10
 
 const destacamentoStore = useDestacamentoStore()
 const permissions = usePermissionsStore()
@@ -32,6 +35,25 @@ const cargando = ref(false)
 const errorMessage = ref<string | null>(null)
 const guardandoTodo = ref(false)
 
+const busqueda = ref('')
+const pagina = ref(1)
+
+const filasFiltradas = computed(() => {
+  const q = busqueda.value.trim().toLowerCase()
+  if (!q) return filas.value
+  return filas.value.filter((f) => f.nombreCompleto.toLowerCase().includes(q))
+})
+
+const totalPaginas = computed(() => Math.max(1, Math.ceil(filasFiltradas.value.length / PAGE_SIZE)))
+const filasPagina = computed(() => {
+  const inicio = (pagina.value - 1) * PAGE_SIZE
+  return filasFiltradas.value.slice(inicio, inicio + PAGE_SIZE)
+})
+
+watch(busqueda, () => {
+  pagina.value = 1
+})
+
 function trimestreAutomatico(): number | null {
   const hoy = new Date().toISOString().slice(0, 10)
   return (
@@ -53,6 +75,7 @@ async function cargarTrimestres() {
 onMounted(cargarTrimestres)
 
 async function cargarRoster() {
+  pagina.value = 1
   const destacamentoId = destacamentoStore.actualId
   if (!destacamentoId) {
     filas.value = []
@@ -163,6 +186,13 @@ async function guardarTodo() {
         />
       </label>
 
+      <input
+        v-model="busqueda"
+        type="text"
+        placeholder="Buscar por nombre…"
+        class="mk-input w-56 rounded-md border border-mk-border px-3 py-1.5 text-sm"
+      />
+
       <button
         v-if="puedeEditar"
         type="button"
@@ -202,12 +232,12 @@ async function guardarTodo() {
           <tr v-if="cargando">
             <td colspan="4" class="px-4 py-6 text-center text-mk-text-muted">Cargando…</td>
           </tr>
-          <tr v-else-if="filas.length === 0">
+          <tr v-else-if="filasPagina.length === 0">
             <td colspan="4" class="px-4 py-6 text-center text-mk-text-muted">
               No hay niños activos en este destacamento.
             </td>
           </tr>
-          <tr v-for="f in filas" v-else :key="f.ninoId">
+          <tr v-for="f in filasPagina" v-else :key="f.ninoId">
             <td class="px-4 py-2.5 font-medium text-mk-text">{{ f.nombreCompleto }}</td>
             <td class="px-4 py-2.5">
               <label class="flex items-center gap-2">
@@ -242,6 +272,10 @@ async function guardarTodo() {
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <div v-if="totalPaginas > 1" class="flex justify-end">
+      <PaginacionTabla v-model:pagina="pagina" :total-paginas="totalPaginas" />
     </div>
   </div>
 </template>

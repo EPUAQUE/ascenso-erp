@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import ModalDialog from '@/components/common/ModalDialog.vue'
 import EstadoBadge from '@/components/common/EstadoBadge.vue'
 import ActionIcon from '@/components/common/ActionIcon.vue'
+import PaginacionTabla from '@/components/common/PaginacionTabla.vue'
 import { usePermissionsStore } from '@/stores/permissions.store'
 import { anuncioService } from '@/services/actividades/AnuncioService'
 import { ApiClientError } from '@/services/http/ApiClient'
 import type { Anuncio } from '@/types/actividades'
+
+const PAGE_SIZE = 10
 
 const permissions = usePermissionsStore()
 const puedeEditar = computed(() => permissions.can('ANUNCIOS_EDITAR'))
@@ -14,6 +17,30 @@ const puedeEditar = computed(() => permissions.can('ANUNCIOS_EDITAR'))
 const anuncios = ref<Anuncio[]>([])
 const cargando = ref(false)
 const errorMessage = ref<string | null>(null)
+
+const busqueda = ref('')
+const filtroEstado = ref<'todos' | 'activos' | 'inactivos'>('activos')
+const pagina = ref(1)
+
+const anunciosFiltrados = computed(() => {
+  const q = busqueda.value.trim().toLowerCase()
+  return anuncios.value.filter((a) => {
+    if (filtroEstado.value === 'activos' && !a.activo) return false
+    if (filtroEstado.value === 'inactivos' && a.activo) return false
+    if (q && !a.titulo.toLowerCase().includes(q)) return false
+    return true
+  })
+})
+
+const totalPaginas = computed(() => Math.max(1, Math.ceil(anunciosFiltrados.value.length / PAGE_SIZE)))
+const anunciosPagina = computed(() => {
+  const inicio = (pagina.value - 1) * PAGE_SIZE
+  return anunciosFiltrados.value.slice(inicio, inicio + PAGE_SIZE)
+})
+
+watch([busqueda, filtroEstado], () => {
+  pagina.value = 1
+})
 
 async function cargar() {
   cargando.value = true
@@ -113,7 +140,24 @@ async function onToggleActivo(a: Anuncio) {
 
 <template>
   <div class="space-y-4">
-    <div class="flex justify-end">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div class="flex flex-wrap items-center gap-3">
+        <input
+          v-model="busqueda"
+          type="text"
+          placeholder="Buscar por título…"
+          class="mk-input w-56 rounded-md border border-mk-border px-3 py-1.5 text-sm"
+        />
+        <select
+          v-model="filtroEstado"
+          class="mk-input rounded-md border border-mk-border px-2 py-1.5 text-sm"
+        >
+          <option value="activos">Activos</option>
+          <option value="inactivos">Inactivos</option>
+          <option value="todos">Todos</option>
+        </select>
+      </div>
+
       <button v-if="puedeEditar" type="button" class="mk-btn mk-btn-primary" @click="abrirCrear">
         <ActionIcon name="plus" class="h-4 w-4" />
         Nuevo anuncio
@@ -145,12 +189,12 @@ async function onToggleActivo(a: Anuncio) {
           <tr v-if="cargando">
             <td colspan="5" class="px-4 py-6 text-center text-mk-text-muted">Cargando…</td>
           </tr>
-          <tr v-else-if="anuncios.length === 0">
+          <tr v-else-if="anunciosPagina.length === 0">
             <td colspan="5" class="px-4 py-6 text-center text-mk-text-muted">
               No hay anuncios para mostrar.
             </td>
           </tr>
-          <tr v-for="a in anuncios" v-else :key="a.id">
+          <tr v-for="a in anunciosPagina" v-else :key="a.id">
             <td class="px-4 py-2.5 font-medium text-mk-text">{{ a.titulo }}</td>
             <td class="px-4 py-2.5 text-mk-text-muted">{{ a.fechaInicioVisible }}</td>
             <td class="px-4 py-2.5 text-mk-text-muted">{{ a.fechaFinVisible ?? '—' }}</td>
@@ -179,6 +223,10 @@ async function onToggleActivo(a: Anuncio) {
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <div v-if="totalPaginas > 1" class="flex justify-end">
+      <PaginacionTabla v-model:pagina="pagina" :total-paginas="totalPaginas" />
     </div>
 
     <ModalDialog v-model="formOpen" :title="anuncioEnEdicion ? 'Editar anuncio' : 'Nuevo anuncio'">

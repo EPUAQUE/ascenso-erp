@@ -2,11 +2,14 @@
 import { computed, ref, watch } from 'vue'
 import ModalDialog from '@/components/common/ModalDialog.vue'
 import ActionIcon from '@/components/common/ActionIcon.vue'
+import PaginacionTabla from '@/components/common/PaginacionTabla.vue'
 import { useDestacamentoStore } from '@/stores/destacamento.store'
 import { usePermissionsStore } from '@/stores/permissions.store'
 import { actividadService } from '@/services/actividades/ActividadService'
 import { ApiClientError } from '@/services/http/ApiClient'
 import type { Actividad } from '@/types/actividades'
+
+const PAGE_SIZE = 10
 
 const destacamentoStore = useDestacamentoStore()
 const permissions = usePermissionsStore()
@@ -15,6 +18,25 @@ const puedeEditar = computed(() => permissions.can('ACTIVIDADES_EDITAR'))
 const actividades = ref<Actividad[]>([])
 const cargando = ref(false)
 const errorMessage = ref<string | null>(null)
+
+const busqueda = ref('')
+const pagina = ref(1)
+
+const actividadesFiltradas = computed(() => {
+  const q = busqueda.value.trim().toLowerCase()
+  if (!q) return actividades.value
+  return actividades.value.filter((a) => a.titulo.toLowerCase().includes(q))
+})
+
+const totalPaginas = computed(() => Math.max(1, Math.ceil(actividadesFiltradas.value.length / PAGE_SIZE)))
+const actividadesPagina = computed(() => {
+  const inicio = (pagina.value - 1) * PAGE_SIZE
+  return actividadesFiltradas.value.slice(inicio, inicio + PAGE_SIZE)
+})
+
+watch(busqueda, () => {
+  pagina.value = 1
+})
 
 function instantALocal(instant: string | null): string {
   if (!instant) return ''
@@ -32,6 +54,7 @@ function formatearFecha(instant: string | null): string {
 }
 
 async function cargar() {
+  pagina.value = 1
   const destacamentoId = destacamentoStore.actualId
   if (!destacamentoId) {
     actividades.value = []
@@ -133,6 +156,13 @@ async function onSubmit() {
         {{ destacamentoStore.opciones[0].nombre }}
       </span>
 
+      <input
+        v-model="busqueda"
+        type="text"
+        placeholder="Buscar por título…"
+        class="mk-input w-56 rounded-md border border-mk-border px-3 py-1.5 text-sm"
+      />
+
       <button v-if="puedeEditar" type="button" class="mk-btn mk-btn-primary ml-auto" @click="abrirCrear">
         <ActionIcon name="plus" class="h-4 w-4" />
         Nueva actividad
@@ -164,12 +194,12 @@ async function onSubmit() {
           <tr v-if="cargando">
             <td colspan="5" class="px-4 py-6 text-center text-mk-text-muted">Cargando…</td>
           </tr>
-          <tr v-else-if="actividades.length === 0">
+          <tr v-else-if="actividadesPagina.length === 0">
             <td colspan="5" class="px-4 py-6 text-center text-mk-text-muted">
               No hay actividades para mostrar.
             </td>
           </tr>
-          <tr v-for="a in actividades" v-else :key="a.id">
+          <tr v-for="a in actividadesPagina" v-else :key="a.id">
             <td class="px-4 py-2.5 font-medium text-mk-text">{{ a.titulo }}</td>
             <td class="px-4 py-2.5 text-mk-text-muted">{{ a.descripcion ?? '—' }}</td>
             <td class="px-4 py-2.5 text-mk-text-muted">{{ formatearFecha(a.fechaInicio) }}</td>
@@ -184,6 +214,10 @@ async function onSubmit() {
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <div v-if="totalPaginas > 1" class="flex justify-end">
+      <PaginacionTabla v-model:pagina="pagina" :total-paginas="totalPaginas" />
     </div>
 
     <ModalDialog v-model="formOpen" :title="actividadEnEdicion ? 'Editar actividad' : 'Nueva actividad'">
